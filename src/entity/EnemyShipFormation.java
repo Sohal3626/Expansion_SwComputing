@@ -473,7 +473,7 @@ public class EnemyShipFormation implements Iterable<EnemyShip> {
         if (waveIndex >= this.shooters.size()) {
             currentPattern = PatternType.NONE;
             waveIndex = 0;
-            waveFrameCounter = 0; // ★ 다음 wave를 위해 초기화
+            waveFrameCounter = 0; // Reset for the next wave
 
             // Avoid an immediate extra shot right after the wave ends
             if (this.shootingCooldown != null) {
