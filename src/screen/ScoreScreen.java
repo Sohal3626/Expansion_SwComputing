@@ -70,7 +70,7 @@ public class ScoreScreen extends Screen {
         this.gameState = gameState; // Added
 
         this.score = gameState.getScore();
-        this.livesRemaining = gameState.getPlayerShip().getStats().getHP();
+        this.livesRemaining = gameState.getPlayerShip().getStats().getCurHP();
         this.coins = gameState.getCoins();
         this.name = new StringBuilder();
         this.bulletsShot = gameState.getBulletsShot();

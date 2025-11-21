@@ -7,10 +7,7 @@ import java.util.logging.FileHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import entity.PlayerShip;
 import screen.*;
-
 
 /**
  * Implements core game logic.
@@ -31,7 +28,6 @@ public final class Core {
     private static final Logger LOGGER = Logger.getLogger(Core.class.getSimpleName());
     private static Handler fileHandler;
     private static ConsoleHandler consoleHandler;
-    private PlayerShip playerShip;
     private static int NUM_LEVELS; // Total number of levels
 
     /**
@@ -70,7 +66,7 @@ public final class Core {
         DrawManager.SpriteType shipType = DrawManager.SpriteType.Normal; // Ship Type
         do {
             // Game & score.
-            AchievementManager achievementManager = new AchievementManager(); // add 1P/2P achievement manager
+            AchievementManager achievementManager = new AchievementManager();
 
             switch (returnCode) {
                 case 1:
@@ -100,17 +96,17 @@ public final class Core {
 
                         gameState = ((GameScreen) currentScreen).getGameState();
 
-                        if (gameState.getPlayerShip().getStats().getHP() > 0) {
+                        if (gameState.getPlayerShip().getStats().getCurHP() > 0) {
                             gameState.nextLevel();
                         }
 
-                    } while (gameState.getPlayerShip().getStats().getHP() > 0 && gameState.getLevel() <= gameSettings.size());
+                    } while (gameState.getPlayerShip().getStats().getCurHP() > 0 && gameState.getLevel() <= gameSettings.size());
                     if (returnCode == 1) {
                         break;
                     }
                     LOGGER.info("Starting " + WIDTH + "x" + HEIGHT + " score screen at " + FPS + " fps, with a score of "
                             + gameState.getScore() + ", "
-                            + gameState.getPlayerShip().getStats().getHP() + " lives remaining, "
+                            + gameState.getPlayerShip().getStats().getCurHP() + " lives remaining, "
                             + gameState.getBulletsShot() + " bullets shot and "
                             + gameState.getShipsDestroyed() + " ships destroyed.");
                     currentScreen = new ScoreScreen(width, height, FPS, gameState, achievementManager);
@@ -139,28 +135,9 @@ public final class Core {
                     break;
 
                 case 5:
-                    // Play : Use the play to decide 1p and 2p
-                    currentScreen = new PlayScreen(width, height, FPS);
-                    LOGGER.info("Starting " + WIDTH + "x" + HEIGHT + " play screen at " + FPS + " fps.");
-                    returnCode = frame.setScreen(currentScreen);
-
-                    // play screen -> ship selection screen
-                    if (returnCode == 2) {
-                        returnCode = 6;
-                    }
-                    LOGGER.info("Closing play screen.");
-                    break;
-
-                case 6:
                     currentScreen = new ShipSelectionScreen(width, height, FPS);
                     returnCode = frame.setScreen(currentScreen);
                     shipType = ((ShipSelectionScreen)currentScreen).getSelectedShipType();
-
-                    // If clicked back button, go back to the screen 1P screen -> Player select screen
-                    if (returnCode == 5)
-                        break;
-                    else
-                        returnCode = 2; // Start game.
                     break;
 
                 case 8:

@@ -12,7 +12,10 @@ import engine.SoundManager;
 import engine.augment.Augment;
 import engine.augment.AugmentPool;
 import entity.*;
-import entity.PlayerShip;
+import entity.Enemy.EnemyShip;
+import entity.Enemy.EnemyShipFormation;
+import entity.Player.PlayerShip;
+import entity.Player.PlayerShipStats;
 
 // NEW Item code
 
@@ -56,9 +59,9 @@ public class GameScreen extends Screen {
     private EnemyShipFormation enemyShipFormation;
     private EnemyShip enemyShipSpecial;
     /** Formation of player ships. */
-    private PlayerShip playerShip;
+    private final PlayerShip playerShip;
     /** Stat of player ships. */
-    private PlayerShipStats playerStats;
+    private final PlayerShipStats playerStats;
     /** Minimum time between bonus ship appearances. */
     private Cooldown enemyShipSpecialCooldown;
     /** Time until bonus ship explosion disappears. */
@@ -136,19 +139,11 @@ public class GameScreen extends Screen {
         // for check Achievement 2025-10-02 add
         this.achievementManager = achievementManager;
         this.tookDamageThisLevel = false;
-
-//        try {
-//            List<Score> highScores = Core.getFileManager().loadHighScores();
-//            this.topScore = highScores.isEmpty() ? 0 : highScores.get(0).getScore();
-//        } catch (IOException e) {
-//            logger.warning("Couldn't load high scores for checking!");
-//            this.topScore = 0;
-//        }
         this.highScoreNotified = false;
         this.highScoreNoticeStartTime = 0;
 
         if (this.bonusLife)
-            playerShip.getStats().setHP(playerShip.getStats().getHP() + 1);
+            playerShip.getStats().setCurHP(playerShip.getStats().getCurHP() + 1);
       // [ADD] ensure achievementManager is not null for popup system
 		if (this.achievementManager == null) this.achievementManager = new AchievementManager();
     }
@@ -206,7 +201,7 @@ public class GameScreen extends Screen {
     public final int run() {
         super.run();
 
-        state.addScore(LIFE_SCORE * playerShip.getStats().getHP());
+        state.addScore(LIFE_SCORE * playerShip.getStats().getCurHP());
 
         // Stop all music on exiting this screen
         SoundManager.stopAllMusic();
@@ -337,7 +332,7 @@ public class GameScreen extends Screen {
 
         // check active item affects
         state.updateEffects();
-        drawManager.setLastLife(playerShip.getStats().getHP() == 1);
+        drawManager.setLastLife(playerShip.getStats().getCurHP() == 1);
         draw();
 
         if (!sessionHighScoreNotified && this.state.getScore() > this.topScore) {
@@ -346,7 +341,7 @@ public class GameScreen extends Screen {
             this.highScoreNoticeStartTime = System.currentTimeMillis();
         }
         // End condition: formation cleared or TEAM lives exhausted.
-        if ((this.enemyShipFormation.isEmpty() || playerShip.getStats().getHP() == 0) && !this.levelFinished) {
+        if ((this.enemyShipFormation.isEmpty() || playerShip.getStats().getCurHP() == 0) && !this.levelFinished) {
             // The object managed by the object pool pattern must be recycled at the end of the level.
             BulletPool.recycle(this.bullets);
             this.bullets.removeAll(this.bullets);
@@ -396,7 +391,7 @@ public class GameScreen extends Screen {
 		// Aggregate UI (team score & team lives)
 		drawManager.drawScore(this, state.getScore());
         drawManager.drawExp(this, playerStats.getExp());
-        drawManager.drawLives(this, playerStats.getHP());
+        drawManager.drawLives(this, playerStats.getCurHP());
 		drawManager.drawCoins(this,  state.getCoins()); // ADD THIS LINE - 2P mode: team total
         // 2P mode: setting per-player coin count
 //        if (state.isCoop()) {
@@ -551,20 +546,20 @@ public class GameScreen extends Screen {
                         !this.levelFinished) {
                     recyclable.add(bullet);
                     drawManager.triggerExplosion(playerShip.getPositionX(), playerShip.getPositionY(), false,
-                            playerShip.getStats().getHP() == 1);
+                            playerShip.getStats().getCurHP() == 1);
                     playerShip.addHit();
 
                     playerShip.destroy(); // explosion/respawn handled by Ship.update()
                     SoundManager.playOnce("sound/explosion.wav");
-                    playerShip.getStats().setHP(playerShip.getStats().getHP() - 1); // decrement shared/team lives by 1
+                    playerShip.getStats().setCurHP(playerShip.getStats().getCurHP() - 1); // decrement shared/team lives by 1
 
                     // Record damage for Survivor achievement check
                     this.tookDamageThisLevel = true;
 
-                    drawManager.setLastLife(playerShip.getStats().getHP() == 1);
-                    drawManager.setDeath(playerShip.getStats().getHP() == 0);
+                    drawManager.setLastLife(playerShip.getStats().getCurHP() == 1);
+                    drawManager.setDeath(playerShip.getStats().getCurHP() == 0);
 
-                    this.logger.info("Hit on player " + ", team lives now: " + playerShip.getStats().getHP());
+                    this.logger.info("Hit on player " + ", team lives now: " + playerShip.getStats().getCurHP());
                     break;
 
 				}
@@ -690,6 +685,6 @@ public class GameScreen extends Screen {
     private void earlyExitToScore() {
         SoundManager.stopBackgroundMusic();
         // 목숨 0으로
-        while (playerStats.getHP() > 0) playerStats.setHP(playerStats.getHP() - 1);
+        while (playerStats.getCurHP() > 0) playerStats.setCurHP(playerStats.getCurHP() - 1);
     }
 }

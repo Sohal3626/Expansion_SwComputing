@@ -1,4 +1,4 @@
-package entity;
+package entity.Player;
 
 import java.awt.Color;
 import java.util.Set;
@@ -7,6 +7,9 @@ import engine.Cooldown;
 import engine.Core;
 import engine.GameState;
 import engine.DrawManager.SpriteType;
+import entity.Bullet;
+import entity.BulletPool;
+import entity.Entity;
 
 import static engine.ItemEffect.ItemEffectType.*;
 

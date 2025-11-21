@@ -1,12 +1,12 @@
-package entity;
+package entity.Enemy;
 
 import java.awt.Color;
-import java.util.HashMap;
 
 import engine.Cooldown;
 import engine.Core;
 import engine.DrawManager.SpriteType;
 import engine.GameSettings;
+import entity.Entity;
 
 
 /**
@@ -48,8 +48,9 @@ public class EnemyShip extends Entity {
         this.spriteType = spriteType;
         this.animationCooldown = Core.getCooldown(500);
         this.isDestroyed = false;
-        if((this.stats = EnemyShipLibrary.getShipList().get(this.spriteType)) == null)
-            this.stats = new EnemyShipStats(1,0,0,10,0, 10);
+        this.stats = EnemyShipLibrary.getShipList().get(this.spriteType);
+        if(this.stats == null)
+            this.stats = new EnemyShipStats(1,0,0,10,1, 10);
     }
 
     public void changeShip(GameSettings.ChangeData changeData) {

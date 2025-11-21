@@ -1,4 +1,4 @@
-package entity;
+package entity.Enemy;
 
 public class EnemyShipStats {
     /** Current health of the enemy ship */

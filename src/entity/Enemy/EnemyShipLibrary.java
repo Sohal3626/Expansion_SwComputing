@@ -1,4 +1,4 @@
-package entity;
+package entity.Enemy;
 
 import engine.DrawManager.SpriteType;
 import java.util.HashMap;

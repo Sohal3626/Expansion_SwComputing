@@ -4,9 +4,7 @@ package engine;
 import java.util.HashMap;
 import java.util.Map;
 import engine.ItemEffect.ItemEffectType;
-import entity.PlayerShip;
-
-import static engine.DrawManager.SpriteType.Normal;
+import entity.Player.PlayerShip;
 
 /**
  * Implements an object that stores the state of the game between levels -

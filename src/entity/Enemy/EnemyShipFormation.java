@@ -1,4 +1,4 @@
-package entity;
+package entity.Enemy;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -8,6 +8,9 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 import engine.*;
+import entity.Bullet;
+import entity.BulletPool;
+import entity.Entity;
 import screen.Screen;
 import engine.DrawManager.SpriteType;
 
@@ -160,7 +163,7 @@ public class EnemyShipFormation implements Iterable<EnemyShip> {
                 + this.shipHeight;
 
         for (List<EnemyShip> column : this.enemyShips)
-            this.shooters.add(column.get(column.size() - 1));
+            this.shooters.add(column.getLast());
 
         for (GameSettings.ChangeData changeData : gameSettings.getChangeDataList()){
             EnemyShip ship = this.enemyShips.get(changeData.x).get(changeData.y);
@@ -313,7 +316,7 @@ public class EnemyShipFormation implements Iterable<EnemyShip> {
         for (List<EnemyShip> column : this.enemyShips) {
             if (!column.isEmpty()) {
                 // Height of this column
-                int columnSize = column.getLast().positionY
+                int columnSize = column.getLast().getPositionY()
                         - this.positionY + this.shipHeight;
                 maxColumn = Math.max(maxColumn, columnSize);
                 minPositionY = Math.min(minPositionY, column.getFirst()

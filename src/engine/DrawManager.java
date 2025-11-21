@@ -19,7 +19,8 @@ import java.util.logging.Logger;
 import Animations.BasicGameSpace;
 import Animations.Explosion;
 import Animations.MenuSpace;
-import entity.PlayerShip;
+import entity.Enemy.EnemyShip;
+import entity.Player.PlayerShip;
 import engine.augment.Augment;
 import screen.Screen;
 import entity.Entity;
@@ -288,7 +289,7 @@ public final class DrawManager {
           Checks if the entity is an EnemyShip of type A (EnemyShipA1 or A2),
           and sets its color alpha to 32 to indicate critical damage.
          */
-        if (entity instanceof entity.EnemyShip enemy) {
+        if (entity instanceof EnemyShip enemy) {
             if((enemy.getSpriteType() == SpriteType.EnemyShipA1 || enemy.getSpriteType() == SpriteType.EnemyShipA2) && enemy.getStats().getHp() == 1)
                 color = new Color(color.getRed(), color.getGreen(), color.getBlue(), 32);
         }
