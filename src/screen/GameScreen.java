@@ -170,175 +170,153 @@ public class GameScreen extends Screen {
     /**
      * Initializes basic screen properties, and adds necessary elements.
      */
-        public final void initialize() {
-            super.initialize();
+    public final void initialize() {
+        super.initialize();
 
-            state.clearAllEffects();
-            playerShip.resetPosition(this.getWidth() / 2, this.getHeight() /10 * 9);
-            // Start background music for gameplay
-            SoundManager.startBackgroundMusic("sound/SpaceInvader-GameTheme.wav");
+        state.clearAllEffects();
+        playerShip.resetPosition(this.getWidth() / 2, this.getHeight() /10 * 9);
+        // Start background music for gameplay
+        SoundManager.startBackgroundMusic("sound/SpaceInvader-GameTheme.wav");
 
-            if (this.level == 5) {
-                this.boss = new Boss(this.width / 2 - 40, SEPARATION_LINE_HEIGHT + 10);
-                this.enemyShipFormation = null; // No formation on boss level
+        if (this.level == 5) {
+            this.boss = new Boss(this.width / 2 - 40, SEPARATION_LINE_HEIGHT + 10);
+            this.enemyShipFormation = null; // No formation on boss level
+        } else {
+            enemyShipFormation = new EnemyShipFormation(this.gameSettings);
+            enemyShipFormation.attach(this);
+            this.boss = null; // Ensure no boss if not level 5
+        }
+
+        this.enemyShipSpecialCooldown = Core.getVariableCooldown(BONUS_SHIP_INTERVAL, BONUS_SHIP_VARIANCE);
+        this.enemyShipSpecialCooldown.reset();
+        this.enemyShipSpecialExplosionCooldown = Core.getCooldown(BONUS_SHIP_EXPLOSION);
+        this.screenFinishedCooldown = Core.getCooldown(SCREEN_CHANGE_INTERVAL);
+        this.bullets = new HashSet<Bullet>();
+
+        // New Item Code
+        this.items = new HashSet<Item>();
+
+        // Special input delay / countdown.
+        this.gameStartTime = System.currentTimeMillis();
+        this.inputDelay = Core.getCooldown(INPUT_DELAY);
+        this.inputDelay.reset();
+        drawManager.setDeath(false);
+
+        this.isPaused = false;
+        this.pauseCooldown = Core.getCooldown(300);
+        this.returnMenuCooldown = Core.getCooldown(300);
+
+        augmentCooldown = Core.getCooldown(300);  // 0.2초 디바운스
+        augmentCooldown.reset();
+    }
+
+    /**
+     * Starts the action.
+     *
+     * @return Next screen code.
+     */
+    public final int run() {
+        super.run();
+
+        state.addScore(LIFE_SCORE * playerShip.getStats().getCurHP());
+
+        // Stop all music on exiting this screen
+        SoundManager.stopAllMusic();
+
+        this.logger.info("Screen cleared with a score of " + state.getScore());
+        return this.returnCode;
+    }
+
+    /**
+     * Updates the elements on screen and checks for events.
+     */
+    protected final void update() {
+        super.update();
+
+        // Countdown beep once during pre-start
+        if (!this.inputDelay.checkFinished()) {
+            long elapsed = System.currentTimeMillis() - this.gameStartTime;
+
+            if (!countdownSoundPlayed && elapsed > 1750) {
+                SoundManager.playOnce("sound/CountDownSound.wav");
+                countdownSoundPlayed = true;
+            }
+
+            draw();
+            return;
+        }
+
+        if (this.inputDelay.checkFinished() && inputManager.isKeyDown(KeyEvent.VK_ESCAPE) && this.pauseCooldown.checkFinished()) {
+            this.isPaused = !this.isPaused;
+            this.pauseCooldown.reset();
+
+            if (this.isPaused) {
+                // Pause game music when pausing - no sound during pause
+                SoundManager.stopBackgroundMusic();
             } else {
-                enemyShipFormation = new EnemyShipFormation(this.gameSettings);
-                enemyShipFormation.attach(this);
-                this.boss = null; // Ensure no boss if not level 5
+                // Resume game music when unpausing
+                SoundManager.startBackgroundMusic("sound/SpaceInvader-GameTheme.wav");
             }
-
-            this.enemyShipSpecialCooldown = Core.getVariableCooldown(BONUS_SHIP_INTERVAL, BONUS_SHIP_VARIANCE);
-            this.enemyShipSpecialCooldown.reset();
-            this.enemyShipSpecialExplosionCooldown = Core.getCooldown(BONUS_SHIP_EXPLOSION);
-            this.screenFinishedCooldown = Core.getCooldown(SCREEN_CHANGE_INTERVAL);
-            this.bullets = new HashSet<Bullet>();
-
-            // New Item Code
-            this.items = new HashSet<Item>();
-
-            // Special input delay / countdown.
-            this.gameStartTime = System.currentTimeMillis();
-            this.inputDelay = Core.getCooldown(INPUT_DELAY);
-            this.inputDelay.reset();
-            drawManager.setDeath(false);
-
-            this.isPaused = false;
-            this.pauseCooldown = Core.getCooldown(300);
-            this.returnMenuCooldown = Core.getCooldown(300);
-
-            augmentCooldown = Core.getCooldown(300);  // 0.2초 디바운스
-            augmentCooldown.reset();
+        }
+        if (this.isPaused && inputManager.isKeyDown(KeyEvent.VK_BACK_SPACE) && this.returnMenuCooldown.checkFinished()) {
+            SoundManager.playOnce("sound/select.wav");
+            SoundManager.stopAllMusic(); // Stop all music before returning to menu
+            returnCode = 1;
+            this.isRunning = false;
+        }
+        // Pause 상태에서 Enter → 즉시 종료하고 점수 화면으로
+        if (this.isPaused && inputManager.isKeyDown(KeyEvent.VK_ENTER)) {
+            earlyExitToScore();
+            return;
         }
 
-        /**
-         * Starts the action.
-         *
-         * @return Next screen code.
-         */
-        public final int run() {
-            super.run();
-
-            state.addScore(LIFE_SCORE * playerShip.getStats().getCurHP());
-
-            // Stop all music on exiting this screen
-            SoundManager.stopAllMusic();
-
-            this.logger.info("Screen cleared with a score of " + state.getScore());
-            return this.returnCode;
+        checkLevelUp();
+        if (isLevelUpToast) {
+            if (System.currentTimeMillis() - levelUpToastStart >= 1000) {
+                cleanBullets();
+                isLevelUpToast = false;
+            }
+        }
+        if (isAugSelect && !isLevelUpToast) {
+            selectAugment();
         }
 
-        /**
-         * Updates the elements on screen and checks for events.
-         */
-        protected final void update() {
-            super.update();
+        if (!this.isPaused && !this.isAugSelect) {
+            if (this.inputDelay.checkFinished() && !this.levelFinished) {
+                boolean moveRight, moveLeft, moveUp, moveDown, fire;
+                moveRight = inputManager.isP1RightPressed();
+                moveLeft = inputManager.isP1LeftPressed();
+                moveUp = inputManager.isP1UpPressed();
+                moveDown = inputManager.isP1DownPressed();
+                boolean isRightBorder = playerShip.getPositionX() + playerShip.getWidth() + playerShip.getStats().getMoveSpeed() > this.width - 1;
 
-            // Countdown beep once during pre-start
-            if (!this.inputDelay.checkFinished()) {
-                long elapsed = System.currentTimeMillis() - this.gameStartTime;
+                boolean isLeftBorder = playerShip.getPositionX() - playerShip.getStats().getMoveSpeed() < 1;
 
-                if (!countdownSoundPlayed && elapsed > 1750) {
-                    SoundManager.playOnce("sound/CountDownSound.wav");
-                    countdownSoundPlayed = true;
+                boolean isUpBorder = playerShip.getPositionY() - playerShip.getStats().getMoveSpeed() < SEPARATION_LINE_HEIGHT;
+
+                boolean isDownBorder = playerShip.getPositionY() + playerShip.getHeight() + playerShip.getStats().getMoveSpeed() + 15 > this.height;
+
+                if (moveRight && !isRightBorder)
+                    playerShip.moveRight();
+                if (moveLeft && !isLeftBorder)
+                    playerShip.moveLeft();
+                if (moveUp && !isUpBorder)
+                    playerShip.moveUp();
+                if (moveDown && !isDownBorder)
+                    playerShip.moveDown();
+
+                fire = inputManager.isKeyDown(KeyEvent.VK_SPACE);
+
+                if (fire && playerShip.shoot(this.bullets)) {
+                    SoundManager.playOnce("sound/shoot.wav");
+                    state.incBulletsShot(); // 2P mode: increments per-player bullet shots
                 }
-
-                draw();
-                return;
-            }
-
-            if (this.inputDelay.checkFinished() && inputManager.isKeyDown(KeyEvent.VK_ESCAPE) && this.pauseCooldown.checkFinished()) {
-                this.isPaused = !this.isPaused;
-                this.pauseCooldown.reset();
-
-                if (this.isPaused) {
-                    // Pause game music when pausing - no sound during pause
-                    SoundManager.stopBackgroundMusic();
-                } else {
-                    // Resume game music when unpausing
-                    SoundManager.startBackgroundMusic("sound/SpaceInvader-GameTheme.wav");
-                }
-            }
-            if (this.isPaused && inputManager.isKeyDown(KeyEvent.VK_BACK_SPACE) && this.returnMenuCooldown.checkFinished()) {
-                SoundManager.playOnce("sound/select.wav");
-                SoundManager.stopAllMusic(); // Stop all music before returning to menu
-                returnCode = 1;
-                this.isRunning = false;
-            }
-            // Pause 상태에서 Enter → 즉시 종료하고 점수 화면으로
-            if (this.isPaused && inputManager.isKeyDown(KeyEvent.VK_ENTER)) {
-                earlyExitToScore();
-                return;
-            }
-
-            checkLevelUp();
-            if (isLevelUpToast) {
-                if (System.currentTimeMillis() - levelUpToastStart >= 1000) {
-                    cleanBullets();
-                    isLevelUpToast = false;
-                }
-            }
-            if (isAugSelect && !isLevelUpToast) {
-                selectAugment();
-            }
-
-            if (!this.isPaused && !this.isAugSelect) {
-                if (this.inputDelay.checkFinished() && !this.levelFinished) {
-                    boolean moveRight, moveLeft, moveUp, moveDown, fire;
-                    moveRight = inputManager.isP1RightPressed();
-                    moveLeft = inputManager.isP1LeftPressed();
-                    moveUp = inputManager.isP1UpPressed();
-                    moveDown = inputManager.isP1DownPressed();
-                    boolean isRightBorder = playerShip.getPositionX() + playerShip.getWidth() + playerShip.getStats().getMoveSpeed() > this.width - 1;
-
-                    boolean isLeftBorder = playerShip.getPositionX() - playerShip.getStats().getMoveSpeed() < 1;
-
-                    boolean isUpBorder = playerShip.getPositionY() - playerShip.getStats().getMoveSpeed() < SEPARATION_LINE_HEIGHT;
-
-                    boolean isDownBorder = playerShip.getPositionY() + playerShip.getHeight() + playerShip.getStats().getMoveSpeed() + 15 > this.height;
-
-                    if (moveRight && !isRightBorder)
-                        playerShip.moveRight();
-                    if (moveLeft && !isLeftBorder)
-                        playerShip.moveLeft();
-                    if (moveUp && !isUpBorder)
-                        playerShip.moveUp();
-                    if (moveDown && !isDownBorder)
-                        playerShip.moveDown();
-
-                    fire = inputManager.isKeyDown(KeyEvent.VK_SPACE);
-
-                    if (fire && playerShip.shoot(this.bullets)) {
-                        SoundManager.playOnce("sound/shoot.wav");
-                        state.incBulletsShot(); // 2P mode: increments per-player bullet shots
-                    }
-                    // Special ship lifecycle
-                    if (this.enemyShipSpecial != null) {
-                        if (!this.enemyShipSpecial.isDestroyed())
-                            this.enemyShipSpecial.move(2, 0);
-                        else if (this.enemyShipSpecialExplosionCooldown.checkFinished())
-                            this.enemyShipSpecial = null;
-                    }
-                    if (this.enemyShipSpecial == null && this.enemyShipSpecialCooldown.checkFinished()) {
-                        this.enemyShipSpecial = new EnemyShip();
-                        this.enemyShipSpecialCooldown.reset();
-                        SoundManager.playLoop("sound/special_ship_sound.wav");
-                        this.logger.info("A special ship appears");
-                    }
-                    if (this.enemyShipSpecial != null && this.enemyShipSpecial.getPositionX() > this.width) {
+                // Special ship lifecycle
+                if (this.enemyShipSpecial != null) {
+                    if (!this.enemyShipSpecial.isDestroyed())
+                        this.enemyShipSpecial.move(2, 0);
+                    else if (this.enemyShipSpecialExplosionCooldown.checkFinished())
                         this.enemyShipSpecial = null;
-                        SoundManager.stop();
-                        this.logger.info("The special ship has escaped");
-                    }
-                    // Update ships & enemies
-                    playerShip.update();
-
-    //                 this.enemyShipFormation.update();
-    //                 int bulletsBefore = this.bullets.size();
-    //                 this.enemyShipFormation.shoot(this.bullets);
-    //                 if (this.bullets.size() > bulletsBefore) {
-    //                     // At least one enemy bullet added
-    //                     SoundManager.playOnce("sound/shoot_enemies.wav");
-    //                 }
                 }
                 if (this.enemyShipSpecial == null && this.enemyShipSpecialCooldown.checkFinished()) {
                     this.enemyShipSpecial = new EnemyShip();
@@ -354,74 +332,96 @@ public class GameScreen extends Screen {
                 // Update ships & enemies
                 playerShip.update();
 
-                if (this.boss != null && !this.boss.isDestroyed()) {
-
-                    int bulletsBefore = this.bullets.size();
-
-                    // Boss.update() 안에서 movement + shooting + 패턴 모두 처리됨
-                    this.boss.update(this.bullets);
-
-                    if (this.bullets.size() > bulletsBefore) {
-                        SoundManager.playOnce("sound/shoot_enemies.wav");
-                    }
-                }
-                else if (this.enemyShipFormation != null) {
-
-                    this.enemyShipFormation.update();
-                    int bulletsBefore = this.bullets.size();
-                    this.enemyShipFormation.shoot(this.bullets);
-
-                    if (this.bullets.size() > bulletsBefore) {
-                        SoundManager.playOnce("sound/shoot_enemies.wav");
-                    }
-                }
+//                 this.enemyShipFormation.update();
+//                 int bulletsBefore = this.bullets.size();
+//                 this.enemyShipFormation.shoot(this.bullets);
+//                 if (this.bullets.size() > bulletsBefore) {
+//                     // At least one enemy bullet added
+//                     SoundManager.playOnce("sound/shoot_enemies.wav");
+//                 }
             }
-
-            manageCollisions();
-            cleanBullets();
-
-            // Item Entity Code
-            cleanItems();
-            manageItemPickups();
-
-            // check active item affects
-            state.updateEffects();
-            drawManager.setLastLife(playerShip.getStats().getCurHP() == 1);
-            draw();
-
-            if (!sessionHighScoreNotified && this.state.getScore() > this.topScore) {
-                sessionHighScoreNotified = true;
-                this.highScoreNotified = true;
-                this.highScoreNoticeStartTime = System.currentTimeMillis();
+            if (this.enemyShipSpecial == null && this.enemyShipSpecialCooldown.checkFinished()) {
+                this.enemyShipSpecial = new EnemyShip();
+                this.enemyShipSpecialCooldown.reset();
+                SoundManager.playLoop("sound/special_ship_sound.wav");
+                this.logger.info("A special ship appears");
             }
-            // End condition logic (modified for boss level)
-            boolean allEnemiesDestroyed;
-            if (this.level == 5) {
-                allEnemiesDestroyed = (this.boss != null && this.boss.isDestroyed());
-            } else {
-                allEnemiesDestroyed = (this.enemyShipFormation != null && this.enemyShipFormation.isEmpty());
+            if (this.enemyShipSpecial != null && this.enemyShipSpecial.getPositionX() > this.width) {
+                this.enemyShipSpecial = null;
+                SoundManager.stop();
+                this.logger.info("The special ship has escaped");
             }
+            // Update ships & enemies
+            playerShip.update();
 
-            // End condition: formation cleared (or boss destroyed) or TEAM lives exhausted.
-            if ((allEnemiesDestroyed || playerShip.getStats().getCurHP() == 0) && !this.levelFinished) {
-                // The object managed by the object pool pattern must be recycled at the end of the level.
-                BulletPool.recycle(this.bullets);
-                this.bullets.removeAll(this.bullets);
-                ItemPool.recycle(items);
-                this.items.removeAll(this.items);
-                this.levelFinished = true;
-                this.screenFinishedCooldown.reset();
-            }
+            if (this.boss != null && !this.boss.isDestroyed()) {
 
-            if (this.levelFinished && this.screenFinishedCooldown.checkFinished()) {
-                if (!achievementManager.hasPendingToasts()) {
-                    this.isRunning = false;
+                int bulletsBefore = this.bullets.size();
+
+                // Boss.update() 안에서 movement + shooting + 패턴 모두 처리됨
+                this.boss.update(this.bullets);
+
+                if (this.bullets.size() > bulletsBefore) {
+                    SoundManager.playOnce("sound/shoot_enemies.wav");
                 }
             }
-            if (this.achievementManager != null) this.achievementManager.update();
-            checkAchievement();
-            draw();
+            else if (this.enemyShipFormation != null) {
+
+                this.enemyShipFormation.update();
+                int bulletsBefore = this.bullets.size();
+                this.enemyShipFormation.shoot(this.bullets);
+
+                if (this.bullets.size() > bulletsBefore) {
+                    SoundManager.playOnce("sound/shoot_enemies.wav");
+                }
+            }
         }
+
+        manageCollisions();
+        cleanBullets();
+
+        // Item Entity Code
+        cleanItems();
+        manageItemPickups();
+
+        // check active item affects
+        state.updateEffects();
+        drawManager.setLastLife(playerShip.getStats().getCurHP() == 1);
+        draw();
+
+        if (!sessionHighScoreNotified && this.state.getScore() > this.topScore) {
+            sessionHighScoreNotified = true;
+            this.highScoreNotified = true;
+            this.highScoreNoticeStartTime = System.currentTimeMillis();
+        }
+        // End condition logic (modified for boss level)
+        boolean allEnemiesDestroyed;
+        if (this.level == 5) {
+            allEnemiesDestroyed = (this.boss != null && this.boss.isDestroyed());
+        } else {
+            allEnemiesDestroyed = (this.enemyShipFormation != null && this.enemyShipFormation.isEmpty());
+        }
+
+        // End condition: formation cleared (or boss destroyed) or TEAM lives exhausted.
+        if ((allEnemiesDestroyed || playerShip.getStats().getCurHP() == 0) && !this.levelFinished) {
+            // The object managed by the object pool pattern must be recycled at the end of the level.
+            BulletPool.recycle(this.bullets);
+            this.bullets.removeAll(this.bullets);
+            ItemPool.recycle(items);
+            this.items.removeAll(this.items);
+            this.levelFinished = true;
+            this.screenFinishedCooldown.reset();
+        }
+
+        if (this.levelFinished && this.screenFinishedCooldown.checkFinished()) {
+            if (!achievementManager.hasPendingToasts()) {
+                this.isRunning = false;
+            }
+        }
+        if (this.achievementManager != null) this.achievementManager.update();
+        checkAchievement();
+        draw();
+    }
 
     /**
      * Draws the elements associated with the screen.
@@ -448,7 +448,6 @@ public class GameScreen extends Screen {
                         stats.getHp() - stats.getTotalDamage(),stats.getHp(),true);
             }
         }
-
 
         if (this.boss != null)
             drawManager.drawEntity(this.boss, this.boss.getPositionX(), this.boss.getPositionY());
