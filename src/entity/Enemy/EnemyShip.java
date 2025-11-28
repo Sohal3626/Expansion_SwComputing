@@ -3,7 +3,6 @@ package entity.Enemy;
 import java.awt.Color;
 import engine.Cooldown;
 import engine.Core;
-import engine.DrawManager;
 import engine.DrawManager.SpriteType;
 import engine.GameSettings;
 import entity.Entity;
@@ -119,7 +118,7 @@ public class EnemyShip extends Entity {
     }
 
     /** Reduces enemy health by damage and handles destruction or damage animation if health drops to 0 */
-    public final void hit(int damage) {
+    public final void hit(float damage) {
         this.stats.setTotalDamage(this.stats.getTotalDamage() + damage);
         if (stats.getTotalDamage() >= stats.getHp()) {
             destroy();

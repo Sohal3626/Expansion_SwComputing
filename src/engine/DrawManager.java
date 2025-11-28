@@ -1394,7 +1394,7 @@ public final class DrawManager {
         return new Rectangle(bar_startWidth, y, width, height);
     }
 
-    public void drawHpBar(int x, int y, int width, int height, int currentHp, int maxHp, boolean isEnemy) {
+    public void drawHpBar(int x, int y, int width, int height, float currentHp, int maxHp, boolean isEnemy) {
 
         if (maxHp <= 0) return;
 

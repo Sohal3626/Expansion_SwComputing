@@ -5,7 +5,7 @@ public class EnemyShipStats {
     private int HP;
     /** Attack point of enemy ship */
     private int ATK;
-    private int totalDamage = 0;
+    private float totalDamage = 0;
     /** Values of the ship, in points, when destroyed. */
     private int pointValue;
     /** Values of the ship, in coins, when destroyed. */
@@ -37,8 +37,8 @@ public class EnemyShipStats {
     public int getATK() { return ATK; };
     public void setATK(int atk) { this.ATK = atk; };
 
-    public int getTotalDamage() { return totalDamage; }
-    public void setTotalDamage(int totalDamage) { this.totalDamage = totalDamage; }
+    public float getTotalDamage() { return totalDamage; }
+    public void setTotalDamage(float totalDamage) { this.totalDamage = totalDamage; }
 
     public int getPointValue() { return pointValue; }
     public void setPointValue(int pointValue) { this.pointValue = pointValue; }

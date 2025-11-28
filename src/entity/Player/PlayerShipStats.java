@@ -10,9 +10,9 @@ public class PlayerShipStats {
     private int curHP;
     private int ATK;
     private int exp = 0;
-    private final int moveSpeed;
-    private final int bulletSpeed;
-    private final int shootingInterval;
+    private int moveSpeed;
+    private int bulletSpeed;
+    private int shootingInterval;
     private final int bulletWidth;
     private final int bulletHeight;
 
@@ -40,13 +40,18 @@ public class PlayerShipStats {
     public void setATK(int ATK) { this.ATK = ATK; }
 
     public int getMoveSpeed() { return moveSpeed; }
+    public void addSpeed(int delta) { moveSpeed += delta; }
+
     public int getBulletSpeed() { return bulletSpeed; }
+    public void addBulletSpeed(int delta) { this.bulletSpeed += delta; }
+
     public int getShootingInterval() { return this.shootingInterval; }
+    public void addShootingInterval(int delta) { this.shootingInterval += delta; }
+
     public int getBulletWidth() { return bulletWidth; }
     public int getBulletHeight() { return bulletHeight; }
+
     public void addExp(int delta) { exp += delta; }
     public int getExp() { return exp; }
-    public void resetExp() {
-        exp -= 100;
-    }
+    public void resetExp() { exp -= 100; }
 }
