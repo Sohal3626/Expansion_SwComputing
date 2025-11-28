@@ -432,6 +432,7 @@ public class GameScreen extends Screen {
         if (this.enemyShipFormation != null)
             enemyShipFormation.draw();
         if (this.enemyShipFormation != null) {
+            enemyShipFormation.draw();
             for (EnemyShip enemyShip : this.enemyShipFormation) {
                 if (enemyShip.isDestroyed()) continue;
                 EnemyShipStats stats = enemyShip.getStats();
@@ -439,7 +440,7 @@ public class GameScreen extends Screen {
                         stats.getHp() - stats.getTotalDamage(),stats.getHp(),true);
             }
         }
-      
+
         if (this.boss != null)
             drawManager.drawEntity(this.boss, this.boss.getPositionX(), this.boss.getPositionY());
 
