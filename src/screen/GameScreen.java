@@ -101,6 +101,7 @@ public class GameScreen extends Screen {
      * 2025-11-16 add new variable
      * */
     private List<Augment> augOption;
+    private List<Augment> augSelected = new ArrayList<Augment>();
     private boolean isAugSelect = false;
     private int augmentIndex = 0;
     private Cooldown augmentCooldown;
@@ -548,6 +549,11 @@ public class GameScreen extends Screen {
             }else if((inputManager.isKeyDown(KeyEvent.VK_SPACE) && augmentCooldown.checkFinished())) {
                 isAugSelect = false;
                 augmentCooldown.reset();
+
+                Augment selected = augOption.get(augmentIndex);
+                selected.apply(playerShip);
+                augSelected.add(selected);
+                logger.info("Applied augment: " + selected.name);
             }
         }
     }

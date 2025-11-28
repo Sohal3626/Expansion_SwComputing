@@ -22,7 +22,7 @@ public class StatEffect implements AugmentEffect {
 
             case SPEED -> stats.addSpeed(delta);
 
-            case BULLET_SPEED -> stats.addBulletSpeed(delta);
+            case BULLET_SPEED -> stats.addBulletSpeed(-delta);
 
             case INTERVAL -> stats.addShootingInterval(stats.getShootingInterval() - delta);
         }

@@ -31,6 +31,10 @@ public class AugmentPool {
             new Augment("Bullet Speed UP", "Feels like being a sniper",
                     new StatEffect(StatEffect.StatType.BULLET_SPEED, 2)),
 
-            new Augment("Additional shot", "The trigger seems broken", new TestEffect())
+            new Augment("Additional shot", "The trigger seems broken",
+                    new TestEffect()),
+
+            new Augment("Fire Speed UP", "The trigger feels lighter",
+                    new StatEffect(StatEffect.StatType.INTERVAL, 50))
     );
 }
