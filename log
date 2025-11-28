@@ -1,0 +1,145 @@
+[INFO|2:45:58]: Started loading resources. 
+[FINE|2:45:58]: Sprite Ship1 loaded. 
+[FINE|2:45:58]: Sprite Ship2 loaded. 
+[FINE|2:45:58]: Sprite Ship3 loaded. 
+[FINE|2:45:58]: Sprite Ship4 loaded. 
+[FINE|2:45:58]: Sprite ShipDestroyed1 loaded. 
+[FINE|2:45:58]: Sprite ShipDestroyed2 loaded. 
+[FINE|2:45:58]: Sprite ShipDestroyed3 loaded. 
+[FINE|2:45:58]: Sprite ShipDestroyed4 loaded. 
+[FINE|2:45:58]: Sprite Bullet loaded. 
+[FINE|2:45:58]: Sprite EnemyBullet loaded. 
+[FINE|2:45:58]: Sprite EnemyShipA1 loaded. 
+[FINE|2:45:58]: Sprite EnemyShipA2 loaded. 
+[FINE|2:45:58]: Sprite EnemyShipB1 loaded. 
+[FINE|2:45:58]: Sprite EnemyShipB2 loaded. 
+[FINE|2:45:58]: Sprite EnemyShipC1 loaded. 
+[FINE|2:45:58]: Sprite EnemyShipC2 loaded. 
+[FINE|2:45:58]: Sprite EnemyShipSpecial loaded. 
+[FINE|2:45:58]: Sprite Explosion loaded. 
+[FINE|2:45:58]: Sprite Heart loaded. 
+[FINE|2:45:58]: Sprite ItemScore loaded. 
+[FINE|2:45:58]: Sprite ItemCoin loaded. 
+[FINE|2:45:58]: Sprite ItemHeal loaded. 
+[FINE|2:45:58]: Sprite ItemTripleShot loaded. 
+[FINE|2:45:58]: Sprite ItemScoreBooster loaded. 
+[FINE|2:45:58]: Sprite ItemBulletSpeedUp loaded. 
+[INFO|2:45:58]: Finished loading the sprites. 
+[INFO|2:45:58]: Finished loading the fonts. 
+[FINE|2:45:58]: Started looped sound: sound/menu_sound.wav 
+[INFO|2:45:58]: Starting 448x520 title screen at 60 fps. 
+[INFO|2:45:59]: Started one-shot sound: sound/select.wav 
+[INFO|2:45:59]: Closing title screen. 
+[INFO|2:45:59]: Starting 448x520 play screen at 60 fps. 
+[INFO|2:46:01]: Closing play screen. 
+[INFO|2:46:02]: Starting 448x520 game screen at 60 fps. 
+[INFO|2:46:02]: [GameState] Player : All effects cleared. 
+[FINE|2:46:02]: Background music started: sound/SpaceInvader-GameTheme.wav 
+[INFO|2:46:02]: Initializing 6x4 ship formation in (20,100) 
+[INFO|2:46:02]: Destroyed ship in (0,0) 
+[INFO|2:46:02]: Destroyed ship in (1,0) 
+[INFO|2:46:02]: Destroyed ship in (4,0) 
+[INFO|2:46:02]: Destroyed ship in (5,0) 
+[INFO|2:46:02]: Destroyed ship in (0,1) 
+[INFO|2:46:02]: Destroyed ship in (5,1) 
+[INFO|2:46:02]: Destroyed ship in (2,2) 
+[INFO|2:46:02]: Destroyed ship in (3,2) 
+[INFO|2:46:02]: Destroyed ship in (2,3) 
+[INFO|2:46:02]: Destroyed ship in (3,3) 
+[INFO|2:46:02]: Removed enemy 0 from column 0 
+[INFO|2:46:02]: Removed enemy 1 from column 0 
+[INFO|2:46:02]: Removed enemy 0 from column 1 
+[INFO|2:46:02]: Removed enemy 2 from column 2 
+[INFO|2:46:02]: Removed enemy 3 from column 2 
+[INFO|2:46:02]: Removed enemy 2 from column 3 
+[INFO|2:46:02]: Removed enemy 3 from column 3 
+[INFO|2:46:02]: Removed enemy 0 from column 4 
+[INFO|2:46:02]: Removed enemy 0 from column 5 
+[INFO|2:46:02]: Removed enemy 1 from column 5 
+[INFO|2:46:04]: Started one-shot sound: sound/CountDownSound.wav 
+[INFO|2:46:05]: Started one-shot sound: sound/shoot_enemies.wav 
+[INFO|2:46:06]: Enemy: false 
+[INFO|2:46:06]: final: false 
+[INFO|2:46:06]: Started one-shot sound: sound/explosion.wav 
+[INFO|2:46:06]: Hit on player , team lives now: 2 
+[INFO|2:46:07]: Started one-shot sound: sound/shoot_enemies.wav 
+[INFO|2:46:08]: [Ship] Shooting :DOUBLE_SHOT 
+[INFO|2:46:08]: Started one-shot sound: sound/shoot.wav 
+[INFO|2:46:09]: Enemy: true 
+[INFO|2:46:09]: final: false 
+[INFO|2:46:09]: [ItemManager]: DropRoll 19.9 
+[INFO|2:46:09]: [ItemManager]: Tier=NONE (pity=1) 
+[INFO|2:46:09]: Destroyed ship in (2,1) 
+[INFO|2:46:09]: Started one-shot sound: sound/invaderkilled.wav 
+[INFO|2:46:09]: Hit on enemy ship. 
+[INFO|2:46:09]: Started one-shot sound: sound/achievement.wav 
+[INFO|2:46:09]: Achievement unlocked: First Blood - Defeat your first enemy. [Unlocked] 
+[INFO|2:46:09]: Enemy: true 
+[INFO|2:46:09]: final: false 
+[INFO|2:46:09]: [ItemManager]: DropRoll 12.7 
+[INFO|2:46:09]: [ItemManager]: Tier=NONE (pity=2) 
+[INFO|2:46:09]: Destroyed ship in (2,0) 
+[INFO|2:46:09]: Shooters list reduced to 5 members. 
+[INFO|2:46:09]: Started one-shot sound: sound/invaderkilled.wav 
+[INFO|2:46:09]: Hit on enemy ship. 
+[INFO|2:46:09]: Removed enemy 0 from column 2 
+[INFO|2:46:09]: Removed enemy 1 from column 2 
+[INFO|2:46:09]: Removed column 2 
+[INFO|2:46:09]: [Ship] Shooting :DOUBLE_SHOT 
+[INFO|2:46:09]: Started one-shot sound: sound/shoot.wav 
+[INFO|2:46:10]: Started one-shot sound: sound/shoot_enemies.wav 
+[INFO|2:46:10]: [Ship] Shooting :DOUBLE_SHOT 
+[INFO|2:46:10]: Started one-shot sound: sound/shoot.wav 
+[INFO|2:46:11]: Enemy: true 
+[INFO|2:46:11]: final: false 
+[INFO|2:46:11]: [ItemManager]: DropRoll 92.4 
+[INFO|2:46:11]: [ItemManager]: created item SCOREBOOST at (160, 228) 
+[INFO|2:46:11]: Spawned SCOREBOOST at 157,228 
+[INFO|2:46:11]: Destroyed ship in (1,2) 
+[INFO|2:46:11]: Started one-shot sound: sound/invaderkilled.wav 
+[INFO|2:46:11]: Hit on enemy ship. 
+[INFO|2:46:11]: Removed enemy 2 from column 1 
+[INFO|2:46:11]: [Ship] Shooting :DOUBLE_SHOT 
+[INFO|2:46:11]: Started one-shot sound: sound/shoot.wav 
+[INFO|2:46:11]: Enemy: true 
+[INFO|2:46:11]: final: false 
+[INFO|2:46:11]: [ItemManager]: DropRoll 53.9 
+[INFO|2:46:11]: [ItemManager]: Tier=NONE (pity=1) 
+[INFO|2:46:11]: Destroyed ship in (1,1) 
+[INFO|2:46:11]: Started one-shot sound: sound/invaderkilled.wav 
+[INFO|2:46:11]: Hit on enemy ship. 
+[INFO|2:46:12]: Removed enemy 1 from column 1 
+[INFO|2:46:12]: [Ship] Shooting :DOUBLE_SHOT 
+[INFO|2:46:12]: Started one-shot sound: sound/shoot.wav 
+[INFO|2:46:13]: Started one-shot sound: sound/shoot_enemies.wav 
+[INFO|2:46:13]: Enemy: true 
+[INFO|2:46:13]: final: false 
+[INFO|2:46:13]: [ItemManager]: DropRoll 40.1 
+[INFO|2:46:13]: [ItemManager]: Tier=NONE (pity=2) 
+[INFO|2:46:13]: Destroyed ship in (0,1) 
+[INFO|2:46:13]: Started one-shot sound: sound/invaderkilled.wav 
+[INFO|2:46:13]: Hit on enemy ship. 
+[INFO|2:46:13]: Removed enemy 1 from column 0 
+[INFO|2:46:14]: [Ship] Shooting :DOUBLE_SHOT 
+[INFO|2:46:14]: Started one-shot sound: sound/shoot.wav 
+[INFO|2:46:14]: Enemy: true 
+[INFO|2:46:14]: final: false 
+[INFO|2:46:14]: [ItemManager]: DropRoll 80.8 
+[INFO|2:46:14]: [ItemManager]: created item SCOREBOOST at (176, 188) 
+[INFO|2:46:14]: Spawned SCOREBOOST at 173,188 
+[INFO|2:46:14]: Destroyed ship in (0,0) 
+[INFO|2:46:14]: Shooters list reduced to 4 members. 
+[INFO|2:46:14]: Started one-shot sound: sound/invaderkilled.wav 
+[INFO|2:46:14]: Hit on enemy ship. 
+[INFO|2:46:14]: Started one-shot sound: sound/win.wav 
+[INFO|2:46:16]: [Ship] Shooting :DOUBLE_SHOT 
+[INFO|2:46:16]: Started one-shot sound: sound/shoot.wav 
+[INFO|2:46:16]: Started one-shot sound: sound/shoot_enemies.wav 
+[INFO|2:46:16]: Removed enemy 0 from column 0 
+[INFO|2:46:17]: Removed column 0 
+[INFO|2:46:19]: Started one-shot sound: sound/shoot_enemies.wav 
+[FINE|2:46:19]: Started looped sound: sound/special_ship_sound.wav 
+[INFO|2:46:19]: A special ship appears 
+[INFO|2:46:20]: Formation now moving down 5 
+[INFO|2:46:21]: Started one-shot sound: sound/shoot_enemies.wav 
+[INFO|2:46:22]: Formation now moving left 1 
