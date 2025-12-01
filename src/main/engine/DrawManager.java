@@ -281,12 +281,12 @@ public final class DrawManager {
         }
         else if (entity instanceof Bullet bullet) {
             color = Color.CYAN; // P1 bullet
-            // enemy bullets will keep their default color from the main.entity
+            // enemy bullets will keep their default color from the entity
         }
 
         /*
           Makes A-type enemies semi-transparent when their health is 1.
-          Checks if the main.entity is an EnemyShip of type A (EnemyShipA1 or A2),
+          Checks if the entity is an EnemyShip of type A (EnemyShipA1 or A2),
           and sets its color alpha to 32 to indicate critical damage.
          */
         if (entity instanceof EnemyShip enemy) {
@@ -509,7 +509,7 @@ public final class DrawManager {
     }
 
     /**
-     * Draws current score on main.screen.
+     * Draws current score on screen.
      *
      * @param screen
      *               Screen to draw on.
@@ -634,7 +634,7 @@ public final class DrawManager {
      *               Option selected.
      */
     public void drawMenu(final Screen screen, final Integer hoverOption, final int selectedIndex) {
-        String[] items = {"Play", "Achievements", "High scores","Settings", "Exit"};
+        String[] items = {"Play", "upgrade", "Achievements", "High scores", "Settings", "Exit"};
 
         int baseY = screen.getHeight() / 3 * 2 - 20; // Adjust spacing due to high society button addition
         int spacing = (int) (fontRegularMetrics.getHeight() * 1.5);
@@ -645,56 +645,69 @@ public final class DrawManager {
         }
     }
 
-	/**
-	 * Draws game results.
-	 *
-	 * @param screen
-	 *                       Screen to draw on.
-	 * @param score
-	 *                       Score obtained.
-	 * @param coins
-	 *                       Coins obtained.
-	 * @param shipsDestroyed
-	 *                       Total ships destroyed.
-	 * @param accuracy
-	 *                       Total accuracy.
-	 * @param isNewRecord
-	 *                       If the score is a new high score.
-	 */
-	public void drawResults(final Screen screen, final int score,
-							final int coins, final int livesRemaining , final int shipsDestroyed,
-							final float accuracy, final boolean isNewRecord, final boolean accuracy1P) {
-		String scoreString = String.format("score %04d", score);
-		String coinString = String.format("coins %04d", coins);
-		String livesRemainingString = String.format("lives remaining %d", livesRemaining);
-		String shipsDestroyedString = "enemies destroyed " + shipsDestroyed;
-		String accuracyString = String.format("accuracy %.2f%%", Float.isNaN(accuracy) ? 0.0 : accuracy * 100);
+    /**
+     * Draws game results.
+     *
+     * @param screen Screen to draw on.
+     * @param score Score obtained.
+     * @param coins Coins obtained.
+     * @param livesRemaining Lives remaining.
+     * @param shipsDestroyed Total ships destroyed.
+     * @param clearedStages
+     * @param itemsCollected
+     * @param finalLevel
+     * @param accuracy Total accuracy.
+     * @param isNewRecord If the score is a new high score.
+     * @param accuracy1P If drawing 1P accuracy.
+     */
+    public void drawResults(final Screen screen, final int score,
+                            final int coins, final int livesRemaining,
+                            final int shipsDestroyed,
+                            final int clearedStages,
+                            final int itemsCollected,
+                            final int finalLevel,
+                            final float accuracy, final boolean isNewRecord, final boolean accuracy1P) {
+
+        String scoreString = String.format("score %04d", score);
+        String coinString = String.format("coins %04d", coins);
+        String shipsDestroyedString = "enemies destroyed " + shipsDestroyed;
+        String clearedStagesString = "stages cleared " + clearedStages;
+        String itemsCollectedString = "selected augments " + itemsCollected;
+        String finalLevelString = "final level " + finalLevel;
+
+        String accuracyString = String.format("accuracy %.2f%%", Float.isNaN(accuracy) ? 0.0 : accuracy * 100);
 
         int height = 4;
+        int lineHeight = fontRegularMetrics.getHeight() * 2;
 
-		if (isNewRecord) {
-			backBufferGraphics.setColor(Color.RED);
-		} else {
-			backBufferGraphics.setColor(Color.WHITE);
-		}
+        if (isNewRecord) {
+            backBufferGraphics.setColor(Color.RED);
+        } else {
+            backBufferGraphics.setColor(Color.WHITE);
+        }
 
-		drawCenteredRegularString(screen, scoreString, screen.getHeight()
-				/ height);
-		drawCenteredRegularString(screen, coinString,
-				screen.getHeight() / height + fontRegularMetrics.getHeight()
-						* 2);
-		drawCenteredRegularString(screen, livesRemainingString,
-				screen.getHeight() / height + fontRegularMetrics.getHeight()
-						* 4);
-		drawCenteredRegularString(screen, shipsDestroyedString,
-				screen.getHeight() / height + fontRegularMetrics.getHeight()
-						* 6);
-		// Draw accuracy for player in 1P mode
-		if (accuracy1P) {
-			drawCenteredRegularString(screen, accuracyString, screen.getHeight()
-					/ height + fontRegularMetrics.getHeight() * 8);
-		}
-	}
+        int currentY = screen.getHeight() / height;
+        drawCenteredRegularString(screen, scoreString, currentY);
+        currentY += lineHeight;
+        drawCenteredRegularString(screen, coinString, currentY);
+        currentY += lineHeight;
+        backBufferGraphics.setColor(Color.YELLOW);
+        drawCenteredRegularString(screen, clearedStagesString, currentY);
+        currentY += lineHeight;
+        drawCenteredRegularString(screen, itemsCollectedString, currentY);
+        currentY += lineHeight;
+        drawCenteredRegularString(screen, finalLevelString, currentY);
+        currentY += lineHeight;
+        backBufferGraphics.setColor(Color.WHITE);
+        drawCenteredRegularString(screen, shipsDestroyedString, currentY);
+        currentY += lineHeight;
+
+        if (accuracy1P) {
+            drawCenteredRegularString(screen, accuracyString, currentY);
+            currentY += lineHeight;
+        }
+
+    }
 
 	/**
 	 * Draws interactive characters for name input.
@@ -712,7 +725,7 @@ public final class DrawManager {
 		if (isNewRecord) {
 			backBufferGraphics.setColor(Color.GREEN);
 			drawCenteredRegularString(screen, newRecordString, screen.getHeight()
-					/ 4 + fontRegularMetrics.getHeight() * 11);
+					/ 4 + fontRegularMetrics.getHeight() * 14);
 		}
 
 		// Draw the current name with blinking cursor
@@ -726,7 +739,7 @@ public final class DrawManager {
 
 		backBufferGraphics.setColor(Color.WHITE);
 		drawCenteredRegularString(screen, displayText,
-				screen.getHeight() / 4 + fontRegularMetrics.getHeight() * 12);
+				screen.getHeight() / 4 + fontRegularMetrics.getHeight() * 15);
 
 	}
 
@@ -735,7 +748,7 @@ public final class DrawManager {
 
 		backBufferGraphics.setColor(Color.YELLOW);
 		drawCenteredRegularString(screen, alert, screen.getHeight()
-				/ 4 + fontRegularMetrics.getHeight() * 13 );
+				/ 4 + fontRegularMetrics.getHeight() * 16 );
 	}
 
     /**
@@ -744,7 +757,7 @@ public final class DrawManager {
      * @param screen
      *                     Screen to draw on.
      * @param acceptsInput
-     *                     If the main.screen accepts input.
+     *                     If the screen accepts input.
      */
     public void drawGameOver(final Screen screen, final boolean acceptsInput) {
         String gameOverString = "Game Over";
@@ -779,7 +792,7 @@ public final class DrawManager {
     }//ADD This Screen
 
     /**
-     * Draws basic content of Augment select main.screen.
+     * Draws basic content of Augment select screen.
      *
      * @param screen
      *                     Screen to draw on.
@@ -800,8 +813,8 @@ public final class DrawManager {
             Augment aug = augOption.get(i);
             backBufferGraphics.setColor(Color.GRAY);
             if(toggle == i) backBufferGraphics.setColor(Color.GREEN);
-            drawCenteredBigString(screen, aug.name(), height + i * gap);
-            drawCenteredRegularString(screen, aug.description(), height + i * gap+ 30);
+            drawCenteredBigString(screen, aug.getAugmentName(), height + i * gap);
+            drawCenteredRegularString(screen, aug.getAugmentDesc(), height + i * gap+ 30);
         }
     }
 
@@ -849,7 +862,7 @@ public final class DrawManager {
     }
 
     /**
-     * Draws high score main.screen title and instructions.
+     * Draws high score screen title and instructions.
      *
      * @param screen
      *               Screen to draw on.
@@ -961,7 +974,26 @@ public final class DrawManager {
         drawBackButton(screen, false);
     }
 
+    /**
+     * Draws Upgrade system.
+     *
+     * @param screen
+     *                   Screen to draw on.
+     * [2025-11-11] complete Upgrade Menu method in DrawManager
+     */
+    public void drawUpgradeMenu(final Screen screen) {
+        String upgradeTitle = "Upgrade Entity";
+        String instructionsString = "Press Back Space to return";
 
+        // Draw the title, achievement name, and description
+        backBufferGraphics.setColor(Color.GREEN);
+        drawCenteredBigString(screen, upgradeTitle, screen.getHeight() / 10);
+        backBufferGraphics.setColor(Color.GRAY);
+        drawCenteredRegularString(screen, instructionsString, (int) (screen.getHeight() * 0.9));
+
+        // Draw back button at the top-left corner
+        drawBackButton(screen, false);
+    }
 
     public void drawSettingMenu(final Screen screen) {
         String settingsString = "Settings";
@@ -1099,7 +1131,7 @@ public final class DrawManager {
     public void drawNewHighScoreNotice(final Screen screen) {
 //        String message = "NEW HIGH SCORE!";
 //        backBufferGraphics.setColor(Color.YELLOW);
-//        drawCenteredBigString(main.screen, message, main.screen.getHeight() / 4);
+//        drawCenteredBigString(screen, message, screen.getHeight() / 4);
     }
 
 
@@ -1288,8 +1320,8 @@ public final class DrawManager {
         drawCenteredRegularString(screen, " > " + shipNames[selectedShipIndex] + " < ", screen.getHeight() / 2 - 40);
         // Draw Selected Player Ship Info
         backBufferGraphics.setColor(Color.WHITE);
-//        drawCenteredRegularString(shipSpeeds[selectedShipIndex], centerX, main.screen.getHeight() / 2 + 60);
-//        drawCenteredRegularString(shipFireRates[selectedShipIndex], centerX, main.screen.getHeight() / 2 + 80);
+//        drawCenteredRegularString(shipSpeeds[selectedShipIndex], centerX, screen.getHeight() / 2 + 60);
+//        drawCenteredRegularString(shipFireRates[selectedShipIndex], centerX, screen.getHeight() / 2 + 80);
         drawCenteredRegularString(screen, shipSpeeds[selectedShipIndex], screen.getHeight() / 2 + 60);
         drawCenteredRegularString(screen, shipFireRates[selectedShipIndex], screen.getHeight() / 2 + 80);
 
@@ -1298,7 +1330,7 @@ public final class DrawManager {
     }
 
     /*
-    When a given string is aligned in the middle of the main.screen,
+    When a given string is aligned in the middle of the screen,
     the pixel area occupied by the string is calculated as Rectangle and returned
      */
     private Rectangle centeredStringBounds(final Screen screen, final String string, final int baselineY) {

@@ -28,6 +28,7 @@ public class GameState {
 	/** Current coin count. */ // ADD THIS LINE
     private static int coins = 0;
     private PlayerShip playerShip;
+    private int itemsCollected = 0;
 
     private static class EffectState {
         Cooldown cooldown;
@@ -44,7 +45,7 @@ public class GameState {
     /** Each player has all effect types always initialized (inactive at start). */
     private final Map<ItemEffectType, EffectState> playerEffects = new HashMap<>();
 
-	public GameState(DrawManager.SpriteType shipType, final int level, final int coin) {
+	public GameState(main.engine.DrawManager.SpriteType shipType, final int level, final int coin) {
         this.playerShip = new PlayerShip(260, 420, shipType, this);
 		this.level = level;
         coins = coin;
@@ -76,6 +77,7 @@ public class GameState {
         this.bulletsShot = bulletsShot;
 		this.shipsDestroyed = shipsDestroyed;
 		GameState.coins = coins;
+        this.itemsCollected = 0;
         initializeEffectStates();
     }
 
@@ -90,6 +92,12 @@ public class GameState {
 	public int getShipsDestroyed() {
 		return shipsDestroyed;
 	}
+    public int getItemsCollected() {
+        return itemsCollected;
+    }
+    public void incrementItemsCollected() {
+        this.itemsCollected++;
+    }
 
 	public void addScore(final int delta) {
 		int realDelta = delta;
