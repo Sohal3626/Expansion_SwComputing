@@ -61,7 +61,8 @@ public class ItemEffect {
         else
             gameState.getPlayerShip().getStats().setCurHP(gameState.getPlayerShip().getStats().getCurHP() + lifeAmount);
 
-        logger.info("Player added " + lifeAmount + " lives. before : " + beforeLife + ", after : " + gameState.getPlayerShip().getStats().getCurHP());
+        logger.info("Player added " + lifeAmount + " lives. before : " + beforeLife + ", after : " +
+                gameState.getPlayerShip().getStats().getCurHP());
     }
 
     /**

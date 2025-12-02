@@ -1,7 +1,5 @@
 
-package screen;
-
-import main.screen.Screen;
+package main.screen;
 
 import java.awt.event.KeyEvent;
 

@@ -7,7 +7,7 @@ import java.util.*;
 import main.engine.*;
 
 /**
- * Implements the score main.screen.
+ * Implements the score screen.
  *
  * @author <a href="mailto:RobertoIA1987@gmail.com">Roberto Izquierdo Amo</a>
  *
@@ -53,7 +53,7 @@ public class ScoreScreen extends Screen {
     private final int totalCoin;
 
     /**
-     * Constructor, establishes the properties of the main.screen.
+     * Constructor, establishes the properties of the screen.
      *
      * @param width
      *                  Screen width.
@@ -104,7 +104,7 @@ public class ScoreScreen extends Screen {
     /**
      * Starts the action.
      *
-     * @return Next main.screen code.
+     * @return Next screen code.
      */
     public final int run() {
         super.run();
@@ -113,63 +113,63 @@ public class ScoreScreen extends Screen {
     }
 
     /**
-     * Updates the elements on main.screen and checks for events.
+     * Updates the elements on screen and checks for events.
      */
     protected final void update() {
         super.update();
 
-		draw();
-		if (this.inputDelay.checkFinished()) {
-			if (inputManager.isKeyDown(KeyEvent.VK_ESCAPE)) {
+        draw();
+        if (this.inputDelay.checkFinished()) {
+            if (inputManager.isKeyDown(KeyEvent.VK_ESCAPE)) {
                 // Return to main menu.
                 SoundManager.playOnce("sound/select.wav");
-				this.returnCode = 1;
-				this.isRunning = false;
-				if (this.isNewRecord) {
-					saveAchievement(); //2025-10-03 call method for save achievement released
-					saveScore();
-				}
-			} else if (inputManager.isKeyDown(KeyEvent.VK_SPACE)) {
+                this.returnCode = 1;
+                this.isRunning = false;
+                if (this.isNewRecord) {
+                    saveAchievement(); //2025-10-03 call method for save achievement released
+                    saveScore();
+                }
+            } else if (inputManager.isKeyDown(KeyEvent.VK_SPACE)) {
                 // name too short -> return
                 if (this.name.length() < 3) return;
-				// Play again.
+                // Play again.
                 SoundManager.playOnce("sound/select.wav");
-				this.returnCode = 2;
-				this.isRunning = false;
-				if (this.isNewRecord) {
-					saveScore();
-					saveAchievement(); // 2025-10-03 call method for save achievement released
-				}
-			}
+                this.returnCode = 2;
+                this.isRunning = false;
+                if (this.isNewRecord) {
+                    saveScore();
+                    saveAchievement(); // 2025-10-03 call method for save achievement released
+                }
+            }
 
-			// Handle backspace
-			if (inputManager.isKeyDown(KeyEvent.VK_BACK_SPACE)
-					&& this.selectionCooldown.checkFinished()) {
-				if (!this.name.isEmpty()) {
-					this.name.deleteCharAt(this.name.length() - 1);
-					this.selectionCooldown.reset();
-				}
-			}
+            // Handle backspace
+            if (inputManager.isKeyDown(KeyEvent.VK_BACK_SPACE)
+                    && this.selectionCooldown.checkFinished()) {
+                if (!this.name.isEmpty()) {
+                    this.name.deleteCharAt(this.name.length() - 1);
+                    this.selectionCooldown.reset();
+                }
+            }
 
-			// Handle character input
-			char typedChar = inputManager.getLastCharTyped();
-			if (typedChar != '\0') {
-				// Checks the name is not short when you press the space bar
-				if (typedChar == ' ') {
-					if (this.name.length() < 3) {
-						// System.out.println("too short!!");
-						this.showNameError = true;
-					}
-				}
+            // Handle character input
+            char typedChar = inputManager.getLastCharTyped();
+            if (typedChar != '\0') {
+                // Checks the name is not short when you press the space bar
+                if (typedChar == ' ') {
+                    if (this.name.length() < 3) {
+                        // System.out.println("too short!!");
+                        this.showNameError = true;
+                    }
+                }
 
-				// Check if it's a valid character (alphanumeric only)
-				else if ((Character.isLetterOrDigit(typedChar))
-						&& this.name.length() < MAX_NAME_LENGTH) {
-					this.name.append(Character.toUpperCase(typedChar));
+                // Check if it's a valid character (alphanumeric only)
+                else if ((Character.isLetterOrDigit(typedChar))
+                        && this.name.length() < MAX_NAME_LENGTH) {
+                    this.name.append(Character.toUpperCase(typedChar));
 
-				}
-			}
-		}
+                }
+            }
+        }
 
     }
 
@@ -219,12 +219,12 @@ public class ScoreScreen extends Screen {
     }
 
     /**
-     * Draws the elements associated with the main.screen.
+     * Draws the elements associated with the screen.
      */
     private void draw() {
         drawManager.initDrawing(this);
 
-		drawManager.drawGameOver(this, this.inputDelay.checkFinished());
+        drawManager.drawGameOver(this, this.inputDelay.checkFinished());
 
         float accuracy = (this.bulletsShot > 0) ? (float) this.shipsDestroyed / this.bulletsShot : 0f;
         float acc = (this.bulletsShot > 0) ? (float) this.shipsDestroyed / this.bulletsShot : 0f;
@@ -240,9 +240,9 @@ public class ScoreScreen extends Screen {
                 this.isNewRecord,
                 true);
 
-		drawManager.drawNameInput(this, this.name, this.isNewRecord);
-		if (showNameError)
-			drawManager.drawNameInputError(this);
+        drawManager.drawNameInput(this, this.name, this.isNewRecord);
+        if (showNameError)
+            drawManager.drawNameInputError(this);
 
         drawManager.completeDrawing(this);
     }

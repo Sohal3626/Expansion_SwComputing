@@ -1426,6 +1426,17 @@ public final class DrawManager {
         return new Rectangle(bar_startWidth, y, width, height);
     }
 
+    /**
+     * Draws a health bar for an entity.
+     *
+     * @param x X coordinate of the bar's top-left corner.
+     * @param y Y coordinate of the bar's top-left corner.
+     * @param width Width of the bar.
+     * @param height Height of the bar.
+     * @param currentHp Current health points.
+     * @param maxHp Maximum health points.
+     * @param isEnemy True if the entity is an enemy (use RED color), false for player (use GREEN).
+     */
     public void drawHpBar(int x, int y, int width, int height, float currentHp, int maxHp, boolean isEnemy) {
 
         if (maxHp <= 0) return;

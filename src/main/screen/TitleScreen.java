@@ -7,7 +7,7 @@ import main.engine.Core;
 import main.engine.SoundManager;
 
 /**
- * Implements the title main.screen.
+ * Implements the title screen.
  *
  * @author <a href="mailto:RobertoIA1987@gmail.com">Roberto Izquierdo Amo</a>
  *
@@ -18,57 +18,57 @@ public class TitleScreen extends Screen {
     private boolean coopSelected = false;
     public boolean isCoopSelected() { return coopSelected; }
 
-	/** Milliseconds between changes in user selection. */
-	private static final int SELECTION_TIME = 200;
+    /** Milliseconds between changes in user selection. */
+    private static final int SELECTION_TIME = 200;
 
-	/** Time between changes in user selection. */
-	private Cooldown selectionCooldown;
+    /** Time between changes in user selection. */
+    private Cooldown selectionCooldown;
 
     // menu index added for user mode selection
     private int menuIndex = 0;
 
 
-	/** Added variable to store which menu option is currently hovered */
-	private Integer hoverOption = null;
+    /** Added variable to store which menu option is currently hovered */
+    private Integer hoverOption = null;
 
-	/**
-	 * Constructor, establishes the properties of the main.screen.
-	 *
-	 * @param width
-	 *            Screen width.
-	 * @param height
-	 *            Screen height.
-	 * @param fps
-	 *            Frames per second, frame rate at which the game is run.
-	 */
-	public TitleScreen(final int width, final int height, final int fps) {
-		super(width, height, fps);
+    /**
+     * Constructor, establishes the properties of the screen.
+     *
+     * @param width
+     *            Screen width.
+     * @param height
+     *            Screen height.
+     * @param fps
+     *            Frames per second, frame rate at which the game is run.
+     */
+    public TitleScreen(final int width, final int height, final int fps) {
+        super(width, height, fps);
 
-		// Defaults to play.
-		this.returnCode = 1; // 2P mode: changed to default selection as 1P
-		this.selectionCooldown = Core.getCooldown(SELECTION_TIME);
-		this.selectionCooldown.reset();
+        // Defaults to play.
+        this.returnCode = 1; // 2P mode: changed to default selection as 1P
+        this.selectionCooldown = Core.getCooldown(SELECTION_TIME);
+        this.selectionCooldown.reset();
 
-        // Start menu music loop when the title main.screen is created
+        // Start menu music loop when the title screen is created
         SoundManager.playLoop("sound/menu_sound.wav");
-	}
+    }
 
-	/**
-	 * Starts the action.
-	 *
-	 * @return Next main.screen code.
-	 */
-	public final int run() {
-		super.run();
-        // Stop menu music when leaving the title main.screen
+    /**
+     * Starts the action.
+     *
+     * @return Next screen code.
+     */
+    public final int run() {
+        super.run();
+        // Stop menu music when leaving the title screen
         SoundManager.stop();
-		return this.returnCode;
-	}
+        return this.returnCode;
+    }
 
-	/**
-	 * Updates the elements on main.screen and checks for events.
-	 */
-	protected final void update() {
+    /**
+     * Updates the elements on screen and checks for events.
+     */
+    protected final void update() {
         super.update();
 
         draw();
@@ -141,37 +141,37 @@ public class TitleScreen extends Screen {
         }
     }
 
-	/**
-	 * Shifts the focus to the next menu item. - modified for 2P mode selection
-	 */
-	private void nextMenuItem() {
+    /**
+     * Shifts the focus to the next menu item. - modified for 2P mode selection
+     */
+    private void nextMenuItem() {
         this.menuIndex = (this.menuIndex + 1) % 6;
         drawManager.menuHover(this.menuIndex);
-	}
+    }
 
-	/**
-	 * Shifts the focus to the previous menu item.
-	 */
-	private void previousMenuItem() {
+    /**
+     * Shifts the focus to the previous menu item.
+     */
+    private void previousMenuItem() {
         this.menuIndex = (this.menuIndex + 5) % 6; // Fix : an issue where only the down arrow keys on the keyboard are entered and not up
         drawManager.menuHover(this.menuIndex);
     }
-	/**
-	 * Draws the elements associated with the main.screen.
-	 */
+    /**
+     * Draws the elements associated with the screen.
+     */
 
-	/** Check hover based on mouse position and menu hitbox. */
-	private void draw() {
-		drawManager.initDrawing(this);
+    /** Check hover based on mouse position and menu hitbox. */
+    private void draw() {
+        drawManager.initDrawing(this);
 
         // Main menu space animation
         drawManager.updateMenuSpace();
 
-		int mx = inputManager.getMouseX();
-		int my = inputManager.getMouseY();
-		java.awt.Rectangle[] boxesForHover = drawManager.getMenuHitboxes(this);
+        int mx = inputManager.getMouseX();
+        int my = inputManager.getMouseY();
+        java.awt.Rectangle[] boxesForHover = drawManager.getMenuHitboxes(this);
 
-		Integer newHover = null;
+        Integer newHover = null;
         //2025-11-11 refactoring
         for (int i = 0; i < boxesForHover.length; i++) {
             if (boxesForHover[i].contains(mx, my)) {
@@ -192,10 +192,10 @@ public class TitleScreen extends Screen {
 
         }
 
-		//pass hoverOption for menu highlights respond to mouse hover
-		drawManager.drawTitle(this);
-		drawManager.drawMenu(this, hoverOption, this.menuIndex); // 2P mode: using menu index for highlighting
+        //pass hoverOption for menu highlights respond to mouse hover
+        drawManager.drawTitle(this);
+        drawManager.drawMenu(this, hoverOption, this.menuIndex); // 2P mode: using menu index for highlighting
 
-		drawManager.completeDrawing(this);
-	}
+        drawManager.completeDrawing(this);
+    }
 }

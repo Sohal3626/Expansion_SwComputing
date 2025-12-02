@@ -124,7 +124,7 @@ public class PlayerShip extends Entity {
                 case ShipDestroyedBigShot -> this.spriteType = SpriteType.BigShot;
                 case ShipDestroyedDoubleShot -> this.spriteType = SpriteType.DoubleShot;
                 case ShipDestroyedMoveFast -> this.spriteType = SpriteType.MoveFast;
-        }
+            }
     }
 
     /**

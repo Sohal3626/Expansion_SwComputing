@@ -1,5 +1,7 @@
 package main.engine;
 
+import java.util.Arrays;
+
 /**
  * Implements a high score record.
  *

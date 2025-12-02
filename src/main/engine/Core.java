@@ -7,7 +7,10 @@ import java.util.logging.FileHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import main.entity.Player.PlayerShip;
 import main.screen.*;
+
 
 /**
  * Implements core game logic.
@@ -21,13 +24,14 @@ public final class Core {
     private static final int HEIGHT = 520;
     private static final int FPS = 60;
 
-    /** Frame to draw the main.screen on. */
+    /** Frame to draw the screen on. */
     private static Frame frame;
     private static Screen currentScreen;
     private static List<GameSettings> gameSettings;
     private static final Logger LOGGER = Logger.getLogger(Core.class.getSimpleName());
     private static Handler fileHandler;
     private static ConsoleHandler consoleHandler;
+    private PlayerShip playerShip;
     private static int NUM_LEVELS; // Total number of levels
 
     /**
@@ -66,14 +70,14 @@ public final class Core {
         DrawManager.SpriteType shipType = DrawManager.SpriteType.Normal; // Ship Type
         do {
             // Game & score.
-            AchievementManager achievementManager = new AchievementManager();
+            AchievementManager achievementManager = new AchievementManager(); // add 1P/2P achievement manager
 
             switch (returnCode) {
                 case 1:
                     currentScreen = new TitleScreen(width, height, FPS);
-                    LOGGER.info("Starting " + WIDTH + "x" + HEIGHT + " title main.screen at " + FPS + " fps.");
+                    LOGGER.info("Starting " + WIDTH + "x" + HEIGHT + " title screen at " + FPS + " fps.");
                     returnCode = frame.setScreen(currentScreen);
-                    LOGGER.info("Closing title main.screen.");
+                    LOGGER.info("Closing title screen.");
 
                     if (returnCode == 2) {
                         currentScreen = new PlayScreen(width, height, FPS);
@@ -87,9 +91,9 @@ public final class Core {
 
                     do {
                         currentScreen = new GameScreen(gameState, gameSettings.get(gameState.getLevel() - 1), false, width, height, FPS, achievementManager);
-                        LOGGER.info("Starting " + WIDTH + "x" + HEIGHT + " game main.screen at " + FPS + " fps.");
+                        LOGGER.info("Starting " + WIDTH + "x" + HEIGHT + " game screen at " + FPS + " fps.");
                         returnCode = frame.setScreen(currentScreen);
-                        LOGGER.info("Closing game main.screen.");
+                        LOGGER.info("Closing game screen.");
                         if (returnCode == 1) {
                             break;
                         }
@@ -104,46 +108,65 @@ public final class Core {
                     if (returnCode == 1) {
                         break;
                     }
-                    LOGGER.info("Starting " + WIDTH + "x" + HEIGHT + " score main.screen at " + FPS + " fps, with a score of "
+                    LOGGER.info("Starting " + WIDTH + "x" + HEIGHT + " score screen at " + FPS + " fps, with a score of "
                             + gameState.getScore() + ", "
                             + gameState.getPlayerShip().getStats().getCurHP() + " lives remaining, "
                             + gameState.getBulletsShot() + " bullets shot and "
                             + gameState.getShipsDestroyed() + " ships destroyed.");
                     currentScreen = new ScoreScreen(width, height, FPS, gameState, achievementManager);
                     returnCode = frame.setScreen(currentScreen);
-                    LOGGER.info("Closing score main.screen.");
+                    LOGGER.info("Closing score screen.");
                     break;
 
                 case 3:
                     // Achievements.
                     currentScreen = new AchievementScreen(width, height, FPS);
                     LOGGER.info("Starting " + WIDTH + "x" + HEIGHT
-                            + " achievements main.screen at " + FPS + " fps.");
+                            + " achievements screen at " + FPS + " fps.");
                     returnCode = frame.setScreen(currentScreen);
-                    LOGGER.info("Closing achievement main.screen.");
+                    LOGGER.info("Closing achievement screen.");
                     break;
 
                 case 4:
-                    // settings main.screen
+                    // settings screen
                     currentScreen = new SettingScreen(width, height, FPS);
                     LOGGER.info("Starting " + WIDTH + "x" + HEIGHT
-                            + " setting main.screen at " + FPS + " fps.");
+                            + " setting screen at " + FPS + " fps.");
                     returnCode = frame.setScreen(currentScreen);
-                    LOGGER.info("Closing setting main.screen.");
+                    LOGGER.info("Closing setting screen.");
                     frame.removeKeyListener(InputManager.getInstance());
                     frame.addKeyListener(InputManager.getInstance()); // Remove and re-register the input manager, forcing the key setting of the frame to be updated
                     break;
 
                 case 5:
+                    // Play : Use the play to decide 1p and 2p
+                    currentScreen = new PlayScreen(width, height, FPS);
+                    LOGGER.info("Starting " + WIDTH + "x" + HEIGHT + " play screen at " + FPS + " fps.");
+                    returnCode = frame.setScreen(currentScreen);
+
+                    // play screen -> ship selection screen
+                    if (returnCode == 2) {
+                        returnCode = 6;
+                    }
+                    LOGGER.info("Closing play screen.");
+                    break;
+
+                case 6:
                     currentScreen = new ShipSelectionScreen(width, height, FPS);
                     returnCode = frame.setScreen(currentScreen);
                     shipType = ((ShipSelectionScreen)currentScreen).getSelectedShipType();
+
+                    // If clicked back button, go back to the screen 1P screen -> Player select screen
+                    if (returnCode == 5)
+                        break;
+                    else
+                        returnCode = 2; // Start game.
                     break;
 
-                    //2025-11-11 add upgrade
+                //2025-11-11 add upgrade
                 case 7:
                     //upgrade
-                    currentScreen = new screen.UpgradeScreen(width, height, FPS);
+                    currentScreen = new UpgradeScreen(width, height, FPS);
                     LOGGER.info("Starting " + WIDTH + "x" + HEIGHT
                             + " Upgrade screen at " + FPS + " fps.");
                     returnCode = frame.setScreen(currentScreen);
@@ -153,9 +176,9 @@ public final class Core {
                 case 8:
                     // High scores.
                     currentScreen = new HighScoreScreen(width, height, FPS);
-                    LOGGER.info("Starting " + WIDTH + "x" + HEIGHT + " high score main.screen at " + FPS + " fps.");
+                    LOGGER.info("Starting " + WIDTH + "x" + HEIGHT + " high score screen at " + FPS + " fps.");
                     returnCode = frame.setScreen(currentScreen);
-                    LOGGER.info("Closing high score main.screen.");
+                    LOGGER.info("Closing high score screen.");
                     break;
 
                 default:
