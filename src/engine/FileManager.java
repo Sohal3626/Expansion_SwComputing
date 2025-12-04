@@ -302,7 +302,7 @@ public final class FileManager {
 
                     String name = playRecord[1].trim();
 
-                    // ✅ Match both username and mode to consider it the same record
+                    // Match both username and mode to consider it the same record
                     if (name.equals(userName)) {
                         found = true;
                         Logger.getLogger(getClass().getName()).info("Achievement has been updated.");
@@ -402,4 +402,93 @@ public final class FileManager {
 
         return completer;
     }
+    /**
+     * Loads ship upgrade data from disk.
+     *
+     * @return Stored ship upgrade data or defaults if none found.
+     * @throws IOException In case of loading problems.
+     */
+    public ShipUpgradeData loadShipUpgrades() throws IOException {
+        String path = getFilePath("Shipgrade.csv");
+        File upgradeFile = new File(path);
+        Map<SpriteType, EnumMap<ShipUpgradeType, Integer>> levels = new EnumMap<>(SpriteType.class);
+        int coins = 0;
+
+        if (!upgradeFile.exists()) {
+            for (SpriteType type : List.of(SpriteType.Normal, SpriteType.BigShot, SpriteType.DoubleShot, SpriteType.MoveFast)) {
+                EnumMap<ShipUpgradeType, Integer> defaults = new EnumMap<>(ShipUpgradeType.class);
+                for (ShipUpgradeType upgradeType : ShipUpgradeType.values()) {
+                    defaults.put(upgradeType, 1);
+                }
+                levels.put(type, defaults);
+            }
+            return new ShipUpgradeData(levels, coins);
+        }
+
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(upgradeFile), StandardCharsets.UTF_8))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] tokens = line.split(",");
+                if (tokens.length == 0) {
+                    continue;
+                }
+                if (tokens[0].equalsIgnoreCase("coins") && tokens.length > 1) {
+                    try {
+                        coins = Integer.parseInt(tokens[1]);
+                    } catch (NumberFormatException ignored) {
+                        coins = 0;
+                    }
+                    continue;
+                }
+
+                try {
+                    SpriteType type = SpriteType.valueOf(tokens[0]);
+                    EnumMap<ShipUpgradeType, Integer> typeLevels = new EnumMap<>(ShipUpgradeType.class);
+                    for (int i = 0; i < ShipUpgradeType.values().length && i + 1 < tokens.length; i++) {
+                        try {
+                            typeLevels.put(ShipUpgradeType.values()[i], Integer.parseInt(tokens[i + 1]));
+                        } catch (NumberFormatException e) {
+                            typeLevels.put(ShipUpgradeType.values()[i], 1);
+                        }
+                    }
+                    for (ShipUpgradeType upgradeType : ShipUpgradeType.values()) {
+                        typeLevels.putIfAbsent(upgradeType, 1);
+                    }
+                    levels.put(type, typeLevels);
+                } catch (IllegalArgumentException ignored) {
+                    logger.warning("Skipping unknown ship upgrade line: " + tokens[0]);
+                }
+            }
+        }
+
+        return new ShipUpgradeData(levels, coins);
+    }
+
+    /**
+     * Saves ship upgrade data to disk.
+     *
+     * @param data Upgrade data to persist.
+     * @throws IOException In case of saving problems.
+     */
+    public void saveShipUpgrades(final ShipUpgradeData data) throws IOException {
+        String path = getFilePath("Shipgrade.csv");
+        File upgradeFile = new File(path);
+        OutputStream outputStream = new FileOutputStream(upgradeFile);
+        try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream, StandardCharsets.UTF_8))) {
+            writer.write("coins," + data.getCoins());
+            writer.newLine();
+
+            List<SpriteType> types = List.of(SpriteType.Normal, SpriteType.BigShot, SpriteType.DoubleShot, SpriteType.MoveFast);
+            for (SpriteType type : types) {
+                Map<ShipUpgradeType, Integer> levels = data.getUpgradeLevels().get(type);
+                writer.write(type.name());
+                for (ShipUpgradeType upgradeType : ShipUpgradeType.values()) {
+                    int level = levels != null ? levels.getOrDefault(upgradeType, 1) : 1;
+                    writer.write("," + level);
+                }
+                writer.newLine();
+            }
+        }
+    }
+
 }
