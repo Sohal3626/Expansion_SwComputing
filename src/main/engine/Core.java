@@ -10,7 +10,7 @@ import java.util.logging.Logger;
 
 import main.entity.Player.PlayerShip;
 import main.screen.*;
-
+import main.engine.ShipUpgradeManager;
 
 /**
  * Implements core game logic.
@@ -63,6 +63,8 @@ public final class Core {
 
         gameSettings = GameSettings.getGameSettings();
         NUM_LEVELS = gameSettings.size(); // Initialize total number of levels
+
+        ShipUpgradeManager.getInstance();
 
         GameState gameState;
         int returnCode = 1;
@@ -162,8 +164,6 @@ public final class Core {
                     else
                         returnCode = 2; // Start game.
                     break;
-
-                //2025-11-11 add upgrade
                 case 7:
                     //upgrade
                     currentScreen = new UpgradeScreen(width, height, FPS);

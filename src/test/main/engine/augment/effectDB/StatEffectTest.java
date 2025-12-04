@@ -1,7 +1,8 @@
-package main.engine.augment.effectDB;
+package test.main.engine.augment.effectDB;
 
 import main.engine.DrawManager;
 import main.engine.GameState;
+import main.engine.augment.effectDB.StatEffect;
 import main.entity.Player.PlayerShip;
 import main.entity.Player.PlayerShipStats;
 import org.junit.jupiter.api.*;

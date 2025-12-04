@@ -21,6 +21,7 @@ import main.Animations.Explosion;
 import main.Animations.MenuSpace;
 import main.entity.Enemy.EnemyShip;
 import main.entity.Player.PlayerShip;
+import main.entity.Player.PlayerShipStats;
 import main.engine.augment.Augment;
 import main.screen.Screen;
 import main.entity.Entity;
@@ -976,24 +977,66 @@ public final class DrawManager {
 
     /**
      * Draws Upgrade system.
-     *
-     * @param screen
-     *                   Screen to draw on.
-     * [2025-11-11] complete Upgrade Menu method in DrawManager
      */
-    public void drawUpgradeMenu(final Screen screen) {
-        String upgradeTitle = "Upgrade Entity";
-        String instructionsString = "Press Back Space to return";
+    public void drawUpgradeScreen(final Screen screen, final List<SpriteType> shipTypes, final int shipIndex,
+                                  final int selectionIndex, final ShipUpgradeManager upgradeManager) {
+        SpriteType currentType = shipTypes.get(shipIndex);
+        PlayerShipStats stats = upgradeManager.getUpgradedStats(currentType);
+        EnumMap<ShipUpgradeType, Integer> levels = upgradeManager.getLevels(currentType);
 
-        // Draw the title, achievement name, and description
-        backBufferGraphics.setColor(Color.GREEN);
-        drawCenteredBigString(screen, upgradeTitle, screen.getHeight() / 10);
-        backBufferGraphics.setColor(Color.GRAY);
-        drawCenteredRegularString(screen, instructionsString, (int) (screen.getHeight() * 0.9));
-
-        // Draw back button at the top-left corner
         drawBackButton(screen, false);
+        drawCenteredBigString(screen, "UPGRADE HANGAR", screen.getHeight() / 5);
+        drawCoins(screen, upgradeManager.getCoins());
+
+        String[] labels = {"Ship", "Attack", "Move Speed", "Fire Rate", "Max HP", "Reset"};
+        int baseY = screen.getHeight() / 3;
+        int spacing = (int) (fontRegularMetrics.getHeight() * 1.5);
+
+        for (int i = 0; i < labels.length; i++) {
+            boolean highlight = i == selectionIndex;
+            backBufferGraphics.setColor(highlight ? Color.GREEN : Color.WHITE);
+
+            int y = baseY + spacing * i;
+            switch (i) {
+                case 0 -> {
+                    String shipName = currentType.name();
+                    drawCenteredRegularString(screen, "Ship: < " + shipName + " >", y);
+                }
+
+                case 1 -> drawStatLine(screen, y, labels[i], levels.getOrDefault(ShipUpgradeType.ATTACK, 1),
+                        stats.getATK(), upgradeManager.getUpgradeCost(currentType, ShipUpgradeType.ATTACK));
+                case 2 -> drawStatLine(screen, y, labels[i], levels.getOrDefault(ShipUpgradeType.MOVE_SPEED, 1),
+                        stats.getMoveSpeed(), upgradeManager.getUpgradeCost(currentType, ShipUpgradeType.MOVE_SPEED));
+                case 3 -> drawStatLine(screen, y, labels[i], levels.getOrDefault(ShipUpgradeType.FIRE_RATE, 1),
+                        Math.max(1, 1000 / stats.getShootingInterval()), upgradeManager.getUpgradeCost(currentType, ShipUpgradeType.FIRE_RATE), "shot/s");
+                case 4 -> drawStatLine(screen, y, labels[i], levels.getOrDefault(ShipUpgradeType.MAX_HP, 1),
+                        stats.getMaxHP(), upgradeManager.getUpgradeCost(currentType, ShipUpgradeType.MAX_HP));
+                case 5 -> {
+                    int refund = upgradeManager.getRefundAmount(currentType);
+                    String resetText = String.format("Reset (refund %d coins)", refund);
+                    drawCenteredRegularString(screen, resetText, y);
+                }
+                default -> {
+                }
+            }
+        }
+
+        backBufferGraphics.setColor(Color.GRAY);
+        drawCenteredRegularString(screen, "Up/Down: select | space: adjust | ESC: back", screen.getHeight() - 40);
     }
+
+    private void drawStatLine(final Screen screen, final int y, final String label, final int level,
+                              final int value, final int cost) {
+        drawStatLine(screen, y, label, level, value, cost, "");
+    }
+
+    private void drawStatLine(final Screen screen, final int y, final String label, final int level,
+                              final int value, final int cost, final String suffix) {
+        String costText = cost == 0 ? "MAX" : cost + " c";
+        String line = String.format("%s Lv.%d | %d%s | Cost: %s", label, level, value, suffix.isEmpty() ? "" : " " + suffix, costText);
+        drawCenteredRegularString(screen, line, y);
+    }
+
 
     public void drawSettingMenu(final Screen screen) {
         String settingsString = "Settings";

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.*;
 
 import main.engine.*;
+import main.engine.ShipUpgradeManager;
 
 /**
  * Implements the score screen.
@@ -124,6 +125,7 @@ public class ScoreScreen extends Screen {
                 // Return to main menu.
                 SoundManager.playOnce("sound/select.wav");
                 this.returnCode = 1;
+                ShipUpgradeManager.getInstance().addCoins(this.gameState.getCoins());
                 this.isRunning = false;
                 if (this.isNewRecord) {
                     saveAchievement(); //2025-10-03 call method for save achievement released
@@ -134,13 +136,14 @@ public class ScoreScreen extends Screen {
                 if (this.name.length() < 3) return;
                 // Play again.
                 SoundManager.playOnce("sound/select.wav");
-                this.returnCode = 2;
-                this.isRunning = false;
-                if (this.isNewRecord) {
-                    saveScore();
-                    saveAchievement(); // 2025-10-03 call method for save achievement released
-                }
-            }
+				this.returnCode = 2;
+                ShipUpgradeManager.getInstance().addCoins((this.gameState.getCoins()));
+				this.isRunning = false;
+				if (this.isNewRecord) {
+					saveScore();
+					saveAchievement(); // 2025-10-03 call method for save achievement released
+				}
+			}
 
             // Handle backspace
             if (inputManager.isKeyDown(KeyEvent.VK_BACK_SPACE)

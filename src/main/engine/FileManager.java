@@ -302,7 +302,7 @@ public final class FileManager {
 
                     String name = playRecord[1].trim();
 
-                    // ✅ Match both username and mode to consider it the same record
+                    // Match both username and mode to consider it the same record
                     if (name.equals(userName)) {
                         found = true;
                         Logger.getLogger(getClass().getName()).info("Achievement has been updated.");
@@ -402,4 +402,155 @@ public final class FileManager {
 
         return completer;
     }
+    /**
+     * Loads ship upgrade data from disk.
+     *
+     * @return Stored ship upgrade data or defaults if none found.
+     * @throws IOException In case of loading problems.
+     */
+    public ShipUpgradeData loadShipUpgrades() throws IOException {
+        String path = getFilePath("ShipUpgrade.csv");
+        File upgradeFile = new File(path);
+        Map<SpriteType, EnumMap<ShipUpgradeType, Integer>> levels = new EnumMap<>(SpriteType.class);
+        int coins = loadCoins();
+
+        if (!upgradeFile.exists()) {
+            for (SpriteType type : List.of(SpriteType.Normal, SpriteType.BigShot, SpriteType.DoubleShot, SpriteType.MoveFast)) {
+                EnumMap<ShipUpgradeType, Integer> defaults = new EnumMap<>(ShipUpgradeType.class);
+                for (ShipUpgradeType upgradeType : ShipUpgradeType.values()) {
+                    defaults.put(upgradeType, 1);
+                }
+                levels.put(type, defaults);
+            }
+            return new ShipUpgradeData(levels, coins);
+        }
+
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(upgradeFile), StandardCharsets.UTF_8))) {
+            String line = reader.readLine();
+            if (line == null) {
+                return new ShipUpgradeData(levels, coins);
+            }
+
+            String[] headers = line.split(",");
+            Map<Integer, ShipUpgradeType> columnMap = new HashMap<>();
+            for (int i = 1; i < headers.length; i++) {
+                try {
+                    columnMap.put(i, ShipUpgradeType.valueOf(headers[i].trim()));
+                } catch (IllegalArgumentException ignored) {
+                    logger.warning("Unknown ship upgrade column: " + headers[i]);
+                }
+            }
+
+            while ((line = reader.readLine()) != null) {
+                String[] tokens = line.split(",");
+                if (tokens.length == 0) {
+                    continue;
+                }
+
+                try {
+                    SpriteType type = SpriteType.valueOf(tokens[0].trim());
+                    EnumMap<ShipUpgradeType, Integer> typeLevels = new EnumMap<>(ShipUpgradeType.class);
+                    for (int i = 1; i < tokens.length; i++) {
+                        ShipUpgradeType upgradeType = columnMap.get(i);
+                        if (upgradeType == null) {
+                            continue;
+                        }
+                        try {
+                            int level = Integer.parseInt(tokens[i].trim());
+                            typeLevels.put(upgradeType, Math.max(level, 1));
+                        } catch (NumberFormatException e) {
+                            typeLevels.put(upgradeType, 1);
+                        }
+                    }
+                    for (ShipUpgradeType upgradeType : ShipUpgradeType.values()) {
+                        typeLevels.putIfAbsent(upgradeType, 1);
+                    }
+                    levels.put(type, typeLevels);
+                } catch (IllegalArgumentException ignored) {
+                    logger.warning("Skipping unknown ship upgrade line: " + tokens[0]);
+                }
+            }
+        }
+
+        return new ShipUpgradeData(levels, coins);
+    }
+
+    /**
+     * Saves ship upgrade data to disk.
+     *
+     * @param data Upgrade data to persist.
+     * @throws IOException In case of saving problems.
+     */
+    public void saveShipUpgrades(final ShipUpgradeData data) throws IOException {
+        saveCoins(data.getCoins());
+
+        String path = getFilePath("ShipUpgrade.csv");
+        File upgradeFile = new File(path);
+        OutputStream outputStream = new FileOutputStream(upgradeFile);
+        try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream, StandardCharsets.UTF_8))) {
+            writer.write("ShipType");
+            for (ShipUpgradeType upgradeType : ShipUpgradeType.values()) {
+                writer.write("," + upgradeType.name());
+            }
+            writer.newLine();
+
+            List<SpriteType> types = List.of(SpriteType.Normal, SpriteType.BigShot, SpriteType.DoubleShot, SpriteType.MoveFast);
+            for (SpriteType type : types) {
+                Map<ShipUpgradeType, Integer> levels = data.getUpgradeLevels().get(type);
+                writer.write(type.name());
+                for (ShipUpgradeType upgradeType : ShipUpgradeType.values()) {
+                    int level = levels != null ? Math.max(levels.getOrDefault(upgradeType, 1), 1) : 1;
+                    writer.write("," + level);
+                }
+                writer.newLine();
+            }
+        }
+    }
+    /**
+     * Loads persisted coin balance from disk.
+     *
+     * @return Saved coins value or 0 if missing/invalid.
+     * @throws IOException In case of loading problems.
+     */
+    public int loadCoins() throws IOException {
+        String path = getFilePath("coins.csv");
+        File coinFile = new File(path);
+
+        if (!coinFile.exists()) {
+            return 0;
+        }
+
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(coinFile), StandardCharsets.UTF_8))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] tokens = line.split(",");
+                if (tokens.length > 1 && tokens[0].equalsIgnoreCase("coins")) {
+                    try {
+                        return Integer.parseInt(tokens[1].trim());
+                    } catch (NumberFormatException ignored) {
+                        return 0;
+                    }
+                }
+            }
+        }catch (IOException e) {
+            logger.warning("Error reading coin file, defaulting to 0 coins.");
+        }
+
+        return 0;
+    }
+
+    /**
+     * Saves coin balance to disk.
+     *
+     * @param coins Current coins to persist.
+     * @throws IOException In case of saving problems.
+     */
+    public void saveCoins(final int coins) throws IOException {
+        String path = getFilePath("coins.csv");
+        File coinFile = new File(path);
+        try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(coinFile), StandardCharsets.UTF_8))) {
+            writer.write("coins," + coins);
+        }
+    }
+
 }
