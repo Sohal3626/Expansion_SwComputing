@@ -158,8 +158,8 @@ public final class Core {
                     returnCode = frame.setScreen(currentScreen);
                     shipType = ((ShipSelectionScreen)currentScreen).getSelectedShipType();
 
-                    // If clicked back button, go back to the screen 1P screen -> Player select screen
-                    if (returnCode == 5)
+                    // If clicked back button, go back to main screen
+                    if (returnCode == 1)
                         break;
                     else
                         returnCode = 2; // Start game.

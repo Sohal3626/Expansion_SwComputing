@@ -1016,8 +1016,6 @@ public final class DrawManager {
                     String resetText = String.format("Reset (refund %d coins)", refund);
                     drawCenteredRegularString(screen, resetText, y);
                 }
-                default -> {
-                }
             }
         }
 
