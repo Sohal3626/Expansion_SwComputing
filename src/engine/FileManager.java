@@ -490,5 +490,51 @@ public final class FileManager {
             }
         }
     }
+    /**
+     * Loads persisted coin balance from disk.
+     *
+     * @return Saved coins value or 0 if missing/invalid.
+     * @throws IOException In case of loading problems.
+     */
+    public int loadCoins() throws IOException {
+        String path = getFilePath("coins.csv");
+        File coinFile = new File(path);
+
+        if (!coinFile.exists()) {
+            return 0;
+        }
+
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(coinFile), StandardCharsets.UTF_8))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] tokens = line.split(",");
+                if (tokens.length > 1 && tokens[0].equalsIgnoreCase("coins")) {
+                    try {
+                        return Integer.parseInt(tokens[1].trim());
+                    } catch (NumberFormatException ignored) {
+                        return 0;
+                    }
+                }
+            }
+        }catch (IOException e) {
+            logger.warning("Error reading coin file, defaulting to 0 coins.");
+        }
+
+        return 0;
+    }
+
+    /**
+     * Saves coin balance to disk.
+     *
+     * @param coins Current coins to persist.
+     * @throws IOException In case of saving problems.
+     */
+    public void saveCoins(final int coins) throws IOException {
+        String path = getFilePath("coins.csv");
+        File coinFile = new File(path);
+        try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(coinFile), StandardCharsets.UTF_8))) {
+            writer.write("coins," + coins);
+        }
+    }
 
 }
