@@ -68,12 +68,19 @@ public class ShipUpgradeManager {
         } catch (IOException e) {
             logger.warning("Failed to load ship upgrades. Using defaults.");
         }
+
+        try {
+            coins = Core.getFileManager().loadCoins();
+        } catch (IOException e) {
+            logger.warning("Failed to load saved coins. Using defaults.");
+        }
         ensureDefaultLevels();
     }
 
     public void saveToFile() {
         try {
             Core.getFileManager().saveShipUpgrades(new ShipUpgradeData(getLevelsSnapshot(), coins));
+            Core.getFileManager().saveCoins(coins);
         } catch (IOException e) {
             logger.warning("Failed to save ship upgrades: " + e.getMessage());
         }
@@ -90,6 +97,10 @@ public class ShipUpgradeManager {
 
     public int getCoins() {
         return coins;
+    }
+    public void setCoins(int coins) {
+        this.coins = Math.max(0, coins);
+        saveToFile();
     }
 
     public void addCoins(int delta) {

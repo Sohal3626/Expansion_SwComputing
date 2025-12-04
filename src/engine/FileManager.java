@@ -409,10 +409,10 @@ public final class FileManager {
      * @throws IOException In case of loading problems.
      */
     public ShipUpgradeData loadShipUpgrades() throws IOException {
-        String path = getFilePath("Shipgrade.csv");
+        String path = getFilePath("ShipUpgrade.csv");
         File upgradeFile = new File(path);
         Map<SpriteType, EnumMap<ShipUpgradeType, Integer>> levels = new EnumMap<>(SpriteType.class);
-        int coins = 0;
+        int coins = loadCoins();
 
         if (!upgradeFile.exists()) {
             for (SpriteType type : List.of(SpriteType.Normal, SpriteType.BigShot, SpriteType.DoubleShot, SpriteType.MoveFast)) {
@@ -426,29 +426,40 @@ public final class FileManager {
         }
 
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(upgradeFile), StandardCharsets.UTF_8))) {
-            String line;
+            String line = reader.readLine();
+            if (line == null) {
+                return new ShipUpgradeData(levels, coins);
+            }
+
+            String[] headers = line.split(",");
+            Map<Integer, ShipUpgradeType> columnMap = new HashMap<>();
+            for (int i = 1; i < headers.length; i++) {
+                try {
+                    columnMap.put(i, ShipUpgradeType.valueOf(headers[i].trim()));
+                } catch (IllegalArgumentException ignored) {
+                    logger.warning("Unknown ship upgrade column: " + headers[i]);
+                }
+            }
+
             while ((line = reader.readLine()) != null) {
                 String[] tokens = line.split(",");
                 if (tokens.length == 0) {
                     continue;
                 }
-                if (tokens[0].equalsIgnoreCase("coins") && tokens.length > 1) {
-                    try {
-                        coins = Integer.parseInt(tokens[1]);
-                    } catch (NumberFormatException ignored) {
-                        coins = 0;
-                    }
-                    continue;
-                }
 
                 try {
-                    SpriteType type = SpriteType.valueOf(tokens[0]);
+                    SpriteType type = SpriteType.valueOf(tokens[0].trim());
                     EnumMap<ShipUpgradeType, Integer> typeLevels = new EnumMap<>(ShipUpgradeType.class);
-                    for (int i = 0; i < ShipUpgradeType.values().length && i + 1 < tokens.length; i++) {
+                    for (int i = 1; i < tokens.length; i++) {
+                        ShipUpgradeType upgradeType = columnMap.get(i);
+                        if (upgradeType == null) {
+                            continue;
+                        }
                         try {
-                            typeLevels.put(ShipUpgradeType.values()[i], Integer.parseInt(tokens[i + 1]));
+                            int level = Integer.parseInt(tokens[i].trim());
+                            typeLevels.put(upgradeType, Math.max(level, 1));
                         } catch (NumberFormatException e) {
-                            typeLevels.put(ShipUpgradeType.values()[i], 1);
+                            typeLevels.put(upgradeType, 1);
                         }
                     }
                     for (ShipUpgradeType upgradeType : ShipUpgradeType.values()) {
@@ -471,11 +482,16 @@ public final class FileManager {
      * @throws IOException In case of saving problems.
      */
     public void saveShipUpgrades(final ShipUpgradeData data) throws IOException {
-        String path = getFilePath("Shipgrade.csv");
+        saveCoins(data.getCoins());
+
+        String path = getFilePath("ShipUpgrade.csv");
         File upgradeFile = new File(path);
         OutputStream outputStream = new FileOutputStream(upgradeFile);
         try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream, StandardCharsets.UTF_8))) {
-            writer.write("coins," + data.getCoins());
+            writer.write("ShipType");
+            for (ShipUpgradeType upgradeType : ShipUpgradeType.values()) {
+                writer.write("," + upgradeType.name());
+            }
             writer.newLine();
 
             List<SpriteType> types = List.of(SpriteType.Normal, SpriteType.BigShot, SpriteType.DoubleShot, SpriteType.MoveFast);
@@ -483,7 +499,7 @@ public final class FileManager {
                 Map<ShipUpgradeType, Integer> levels = data.getUpgradeLevels().get(type);
                 writer.write(type.name());
                 for (ShipUpgradeType upgradeType : ShipUpgradeType.values()) {
-                    int level = levels != null ? levels.getOrDefault(upgradeType, 1) : 1;
+                    int level = levels != null ? Math.max(levels.getOrDefault(upgradeType, 1), 1) : 1;
                     writer.write("," + level);
                 }
                 writer.newLine();
