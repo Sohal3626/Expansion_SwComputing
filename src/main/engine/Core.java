@@ -10,7 +10,7 @@ import java.util.logging.Logger;
 
 import main.entity.Player.PlayerShip;
 import main.screen.*;
-
+import main.engine.ShipUpgradeManager;
 
 /**
  * Implements core game logic.
@@ -64,6 +64,8 @@ public final class Core {
         gameSettings = GameSettings.getGameSettings();
         NUM_LEVELS = gameSettings.size(); // Initialize total number of levels
 
+        ShipUpgradeManager.getInstance();
+
         GameState gameState;
         int returnCode = 1;
 
@@ -78,12 +80,6 @@ public final class Core {
                     LOGGER.info("Starting " + WIDTH + "x" + HEIGHT + " title screen at " + FPS + " fps.");
                     returnCode = frame.setScreen(currentScreen);
                     LOGGER.info("Closing title screen.");
-
-                    if (returnCode == 2) {
-                        currentScreen = new PlayScreen(width, height, FPS);
-                        returnCode = frame.setScreen(currentScreen);
-                    }
-
                     break;
 
                 case 2:
@@ -94,8 +90,8 @@ public final class Core {
                         LOGGER.info("Starting " + WIDTH + "x" + HEIGHT + " game screen at " + FPS + " fps.");
                         returnCode = frame.setScreen(currentScreen);
                         LOGGER.info("Closing game screen.");
-                        if (returnCode == 1) {
-                            break;
+                        if (returnCode == 2) {
+                            returnCode = 6;
                         }
 
                         gameState = ((GameScreen) currentScreen).getGameState();
@@ -138,32 +134,18 @@ public final class Core {
                     frame.addKeyListener(InputManager.getInstance()); // Remove and re-register the input manager, forcing the key setting of the frame to be updated
                     break;
 
-                case 5:
-                    // Play : Use the play to decide 1p and 2p
-                    currentScreen = new PlayScreen(width, height, FPS);
-                    LOGGER.info("Starting " + WIDTH + "x" + HEIGHT + " play screen at " + FPS + " fps.");
-                    returnCode = frame.setScreen(currentScreen);
-
-                    // play screen -> ship selection screen
-                    if (returnCode == 2) {
-                        returnCode = 6;
-                    }
-                    LOGGER.info("Closing play screen.");
-                    break;
 
                 case 6:
                     currentScreen = new ShipSelectionScreen(width, height, FPS);
                     returnCode = frame.setScreen(currentScreen);
                     shipType = ((ShipSelectionScreen)currentScreen).getSelectedShipType();
 
-                    // If clicked back button, go back to the screen 1P screen -> Player select screen
-                    if (returnCode == 5)
+                    // If clicked back button, go back to main screen
+                    if (returnCode == 1)
                         break;
                     else
                         returnCode = 2; // Start game.
                     break;
-
-                //2025-11-11 add upgrade
                 case 7:
                     //upgrade
                     currentScreen = new UpgradeScreen(width, height, FPS);

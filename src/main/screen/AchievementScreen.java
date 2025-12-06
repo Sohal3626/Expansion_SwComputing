@@ -14,15 +14,15 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class AchievementScreen extends Screen {
-
-    private static final int PAGE = 7;
+    private static final int ROWS_PER_COLUMN = 7;
+    private static final int PAGE = ROWS_PER_COLUMN * 2;
     private final FileManager fileManager;
     private final List<Achievement> achievements;
     private List<String> completer;
     private List<String> completer1P;
     private int currentIdx = 0;
     private int currentPage = 0;
-    private final int maxPage;
+    private int maxPage;
     private String numOfPages;
 
     public AchievementScreen(final int width, final int height, final int fps) {
@@ -32,8 +32,7 @@ public class AchievementScreen extends Screen {
         fileManager = Core.getFileManager();
         this.completer = Core.getFileManager().getAchievementCompleter(achievements.get(currentIdx));
         this.returnCode = 3;
-        this.completer1P = completer.stream().filter(s -> s.startsWith("1:")).collect(Collectors.toList());
-        this.maxPage = (int) Math.ceil((double) completer1P.size() / PAGE) - 1;
+        updateCompleterData();
         // Start menu music loop when the achievement main.screen is created
         SoundManager.playLoop("sound/menu_sound.wav");
     }
@@ -52,15 +51,11 @@ public class AchievementScreen extends Screen {
         // When the right or left arrow key is pressed, update the current achievement index
         // and reload the completer list for the newly selected achievement.
         if (inputManager.isKeyDown(KeyEvent.VK_RIGHT) && inputDelay.checkFinished()) {
-            currentIdx = (currentIdx + 1) % achievements.size();
-            completer = fileManager.getAchievementCompleter(achievements.get(currentIdx));
-            this.currentPage = 0;
+            moveAchievement(1);
             inputDelay.reset();
         }
         if (inputManager.isKeyDown(KeyEvent.VK_LEFT) && inputDelay.checkFinished()) {
-            currentIdx = (currentIdx - 1 + achievements.size()) % achievements.size();
-            completer = fileManager.getAchievementCompleter(achievements.get(currentIdx));
-            this.currentPage = 0;
+            moveAchievement(-1);
             inputDelay.reset();
         }
 
@@ -86,7 +81,7 @@ public class AchievementScreen extends Screen {
             this.isRunning = false;
         }
 
-        // back button click event
+        // button click event
         if (inputManager.isMouseClicked()) {
             int mx = inputManager.getMouseX();
             int my = inputManager.getMouseY();
@@ -119,5 +114,17 @@ public class AchievementScreen extends Screen {
         }
 
         drawManager.completeDrawing(this);
+    }
+
+    private void updateCompleterData(){
+        this.completer1P = completer.stream().filter(s -> s.startsWith("1:")).collect(Collectors.toList());
+        this.currentPage = 0;
+        this.maxPage = Math.max(0, (int) Math.ceil((double) completer1P.size() / PAGE) - 1);
+    }
+    // reload the completer list for the newly selected achievement.
+    private void moveAchievement(int delta) {
+        currentIdx = (currentIdx + delta + achievements.size()) % achievements.size();
+        completer = fileManager.getAchievementCompleter(achievements.get(currentIdx));
+        updateCompleterData();
     }
 }

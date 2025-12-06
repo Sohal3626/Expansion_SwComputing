@@ -91,7 +91,7 @@ public class TitleScreen extends Screen {
                 SoundManager.playOnce("sound/select.wav");
                 switch (this.menuIndex) {
                     case 0: // "Play"
-                        this.returnCode = 5; // go to PlayScreen
+                        this.returnCode = 6;
                         this.isRunning = false;
                         break;
                     //2025-11-11 add upgrade case
@@ -128,7 +128,7 @@ public class TitleScreen extends Screen {
                 int temp_y = inputManager.getMouseY();
 
                 java.awt.Rectangle[] boxes = drawManager.getMenuHitboxes(this);
-                int[] pos = {5, 7, 3, 8, 4, 0};
+                int[] pos = {6, 7, 3, 8, 4, 0};
 
                 for (int i = 0; i < boxes.length; i++) {
                     if (boxes[i].contains(temp_x, temp_y)) {
