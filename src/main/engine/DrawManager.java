@@ -19,6 +19,8 @@ import java.util.logging.Logger;
 import main.Animations.BasicGameSpace;
 import main.Animations.Explosion;
 import main.Animations.MenuSpace;
+import main.engine.upgrade.ShipUpgradeManager;
+import main.engine.upgrade.ShipUpgradeType;
 import main.entity.Enemy.EnemyShip;
 import main.entity.Player.PlayerShip;
 import main.entity.Player.PlayerShipStats;
@@ -1008,9 +1010,9 @@ public final class DrawManager {
                 }
 
                 case 1 -> drawStatLine(screen, y, labels[i], levels.getOrDefault(ShipUpgradeType.ATTACK, 1),
-                        Math.round(stats.getATK()), upgradeManager.getUpgradeCost(currentType, ShipUpgradeType.ATTACK));
+                        stats.getATK(), upgradeManager.getUpgradeCost(currentType, ShipUpgradeType.ATTACK));
                 case 2 -> drawStatLine(screen, y, labels[i], levels.getOrDefault(ShipUpgradeType.MOVE_SPEED, 1),
-                        Math.round(stats.getMoveSpeed()), upgradeManager.getUpgradeCost(currentType, ShipUpgradeType.MOVE_SPEED));
+                        stats.getMoveSpeed(), upgradeManager.getUpgradeCost(currentType, ShipUpgradeType.MOVE_SPEED));
                 case 3 -> drawStatLine(screen, y, labels[i], levels.getOrDefault(ShipUpgradeType.FIRE_RATE, 1),
                         Math.max(1, 1000 / stats.getShootingInterval()), upgradeManager.getUpgradeCost(currentType, ShipUpgradeType.FIRE_RATE), "shot/s");
                 case 4 -> drawStatLine(screen, y, labels[i], levels.getOrDefault(ShipUpgradeType.MAX_HP, 1),
@@ -1028,14 +1030,16 @@ public final class DrawManager {
     }
 
     private void drawStatLine(final Screen screen, final int y, final String label, final int level,
-                              final int value, final int cost) {
+                              final float value, final int cost) {
         drawStatLine(screen, y, label, level, value, cost, "");
     }
 
     private void drawStatLine(final Screen screen, final int y, final String label, final int level,
-                              final int value, final int cost, final String suffix) {
+                              final float value, final int cost, final String suffix) {
         String costText = cost == 0 ? "MAX" : cost + " c";
-        String line = String.format("%s Lv.%d | %d%s | Cost: %s", label, level, value, suffix.isEmpty() ? "" : " " + suffix, costText);
+        String valueText = Math.abs(value - Math.rint(value)) < 0.0001 ? String.format("%d", Math.round(value))
+                : String.format("%.1f", value);
+        String line = String.format("%s Lv.%d | %s%s | Cost: %s", label, level, valueText, suffix.isEmpty() ? "" : " " + suffix, costText);
         drawCenteredRegularString(screen, line, y);
     }
 
